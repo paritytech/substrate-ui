@@ -1,7 +1,7 @@
 import oo7 from 'oo7';
 import {Rspan} from 'oo7-react';
 import React from 'react';
-import {Polkadot, ss58_decode, ss58_encode, bytesToHex} from './polkadot.js';
+import {Polkadot, ss58_decode, ss58_encode, bytesToHex, pretty} from './polkadot.js';
 import {AccountIdBond} from './AccountIdBond.jsx';
 
 export class App extends React.Component {
@@ -12,13 +12,25 @@ export class App extends React.Component {
 	}
 	render() {
 		return (<div>
-			<div>Height: <Rspan>{this.pd.header(this.pd.head).number}</Rspan></div>
-			<div>Code hash: <Rspan>{this.pd.codeHash.map(bytesToHex)}</Rspan></div>
-			<div>Active council: <Rspan>{this.pd.activeCouncil.map(JSON.stringify)}</Rspan></div>
-			<div>Council Proposals: <Rspan>{this.pd.proposals.map(JSON.stringify)}</Rspan></div>
-			<div>Active Referenda: <Rspan>{this.pd.referenda.map(JSON.stringify)}</Rspan></div>
+			<div>Chain: <div style={{marginLeft: '1em'}}>
+				<div>Height: <Rspan>{this.pd.header(this.pd.head).number}</Rspan></div>
+				<div>Code: <Rspan>{this.pd.code.map(c => c.length)}</Rspan> bytes (<Rspan>{this.pd.codeHash.map(bytesToHex)}</Rspan>)</div>
+			</div></div>
+			<div>Democracy: <div style={{marginLeft: '1em'}}>
+				<div>Active referenda: <Rspan>{this.pd.democracy.active.map(pretty)}</Rspan></div>
+				<div>Proposed referenda: <Rspan>{this.pd.democracy.proposed.map(pretty)}</Rspan></div>
+			</div></div>
+			<div>Council: <div style={{marginLeft: '1em'}}>
+				<div>Members: <Rspan>{this.pd.council.active.map(pretty)}</Rspan></div>
+			</div></div>
+			<div>Council Voting: <div style={{marginLeft: '1em'}}>
+				<div>Voting Period: <Rspan>{this.pd.councilVoting.votingPeriod.map(pretty)}</Rspan></div>
+				<div>Cooloff Period: <Rspan>{this.pd.councilVoting.cooloffPeriod.map(pretty)}</Rspan></div>
+				<div>Proposals: <Rspan>{this.pd.councilVoting.proposals.map(pretty)}</Rspan></div>
+			</div></div>
 			<div>
-			Balance of <AccountIdBond bond={this.who} /> <Rspan style={{fontFamily: 'monospace', fontSize: 'small'}}>{this.who.map(ss58_encode)}</Rspan> is <Rspan>{this.pd.balance(this.who)}</Rspan>
+			<AccountIdBond bond={this.who} />
+			Balance of <Rspan style={{fontFamily: 'monospace', fontSize: 'small'}}>{this.who.map(ss58_encode)}</Rspan> is <Rspan>{this.pd.staking.balance(this.who)}</Rspan>
 			</div>
 		</div>);
 	}
