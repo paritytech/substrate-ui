@@ -236,6 +236,9 @@ function deslice(input, type) {
 	if (typeof type === 'object') {
 		return type.map(t => deslice(input, t));
 	}
+	while (type.startsWith('T::')) {
+		type = type.slice(3);
+	}
 	switch (type) {
 		case 'Call':
 		case 'Proposal': {
@@ -444,7 +447,8 @@ export function toLE(val, bytes) {
 
 export function leToNumber(le) {
 	let r = 0;
-	le.forEach((x, i) => r += (x << (i * 8)));
+	let a = 1;
+	le.forEach(x => { r += x * a; a *= 256; });
 	return r;
 }
 
@@ -484,6 +488,18 @@ Uint8Array.prototype.mapChunks = function(sizes, f) {
 	return r;
 }
 
+function tally(x) {
+	var r = [0, 0];
+	x.forEach(v => r[v ? 1 : 0]++);
+	return {aye: r[1], nay: r[0]};
+}
+
+function tallyAmounts(x) {
+	var r = [0, 0];
+	x.forEach(([v, b]) => r[v ? 1 : 0] += b);
+	return {aye: r[1], nay: r[0]};
+}
+
 export class Polkadot {
 	constructor () {
 		let head = new TransformBond(() => req('chain_getHead'), [], [new TimeBond])
@@ -491,27 +507,28 @@ export class Polkadot {
 		this.header = hashBond => new TransformBond(hash => req('chain_getHeader', [hash]), [hashBond], [new TimeBond]).subscriptable();
 		this.storage = locBond => new TransformBond(loc => req('state_getStorage', ['0x' + toLEHex(XXH.h64(loc.buffer, 0), 8) + toLEHex(XXH.h64(loc.buffer, 1), 8)]), [locBond], [head]);
 		this.code = new TransformBond(() => req('state_getStorage', ['0x' + bytesToHex(stringToBytes(":code"))]).then(hexToBytes), [], [head]);
-		this.codeHash = this.code.map(a => blake2b(a));
+		this.codeHash = new TransformBond(() => req('state_getStorageHash', ['0x' + bytesToHex(stringToBytes(":code"))]).then(hexToBytes), [], [head]);
+		this.codeSize = new TransformBond(() => req('state_getStorageSize', ['0x' + bytesToHex(stringToBytes(":code"))]), [], [head]);
 		function storageMap(prefix, formatResult = r => r, formatArg = x => x, postApply = x => x) {
 			let prefixBytes = stringToBytes(prefix);
-			return argBond => postApply(new TransformBond(
+			return argBond => postApply((new TransformBond(
 				arg => {
 					let loc = new Uint8Array([...prefixBytes, ...formatArg(arg)]);
 					return req('state_getStorage', ['0x' + toLEHex(XXH.h64(loc.buffer, 0), 8) + toLEHex(XXH.h64(loc.buffer, 1), 8)]).then(r => formatResult(r && hexToBytes(r), arg));
 				},
 				[argBond],
 				[head]
-			));
+			)).subscriptable());
 		}
 		function storageValue(stringLocation, formatResult = r => r) {
-			return new TransformBond(
+			return (new TransformBond(
 				arg => {
 					let loc = stringToBytes(stringLocation);
 					return req('state_getStorage', ['0x' + toLEHex(XXH.h64(loc.buffer, 0), 8) + toLEHex(XXH.h64(loc.buffer, 1), 8)]).then(r => formatResult(r && hexToBytes(r), arg))
 				},
 				[],
 				[head]
-			);
+			)).subscriptable();
 		}
 
 		this.system = {
@@ -522,47 +539,75 @@ export class Polkadot {
 			balance: storageMap('sta:bal:', r => r ? leToNumber(r) : 0)
 		};
 
-		this.council = {
-			active: storageValue('cou:act', r => deslice(r, 'Vec<(AccountId, BlockNumber)>').map(i => ({ id: i[0], expires: i[1] })))
-		};
+		{
+			let referendumCount = storageValue('dem:rco', r => r ? leToNumber(r) : 0);
+			let nextTally = storageValue('dem:nxt', r => r ? leToNumber(r) : 0);
+			let referendumVoters = storageMap('dem:vtr:', r => r ? deslice(r, 'Vec<AccountId>') : [], i => toLE(i, 4));
+			let referendumVoteOf = storageMap('dem:vot:', r => r && !!r[0], i => new Uint8Array([...toLE(i[0], 4), ...i[1]]));
+			let referendumInfoOf = storageMap('dem:pro:', (r, index) => {
+				if (r == null) return null;
+				let [ends, proposal, voteThreshold] = deslice(r, ['BlockNumber', 'Proposal', 'VoteThreshold']);
+				let votes = referendumVoters(index).map(r => r || []).mapEach(v => Bond.all([referendumVoteOf([index, v]), this.staking.balance(v)])).map(tallyAmounts);
+				return { index, ends, proposal, voteThreshold, votes };
+			}, i => toLE(i, 4), x => x.map(x=>x, 1));
+			let depositOf = storageMap('dem:dep:', r => {
+				if (r) {
+					let i = deslice(r, '(T::Balance, Vec<T::AccountId>)');
+					return { bond: i[0], sponsors: i[1] };
+				} else {
+					return null;
+				}
+			}, i => toLE(i, 4));
 
-		let referendumCount = storageValue('dem:rco', r => r ? leToNumber(r) : 0);
-		let nextTally = storageValue('dem:nxt', r => r ? leToNumber(r) : 0);
-		let referendumVoters = storageMap('dem:vtr:', r => r ? deslice(r, 'Vec<AccountId>') : [], i => toLE(i, 4));
-		let referendumVoteOf = storageMap('dem:vot:', r => r && !!r[0], i => new Uint8Array([...toLE(i[0], 4), ...i[1]]));
-		let referendumInfoOf = storageMap('dem:pro:', (r, index) => {
-			if (r == null) return null;
-			let [ends, proposal, voteThreshold] = deslice(r, ['BlockNumber', 'Proposal', 'VoteThreshold']);
-			let votes = referendumVoters(index).map(r => r || []).mapEach(v => Bond.all([referendumVoteOf([index, v]), this.staking.balance(v)])).map(x => {
-				var r = [0, 0];
-				x.forEach(([v, b]) => r[v ? 1 : 0] += b);
-				return {aye: r[1], nay: r[0]};
-			});
-			return { index, ends, proposal, voteThreshold, votes };
-		}, i => toLE(i, 4), x => x.map(x=>x, 1));
+			this.democracy = {
+				proposed: storageValue('dem:pub', r => r ? deslice(r, 'Vec<(PropIndex, Proposal, AccountId)>').map(i => {
+					let d = depositOf(i[0]);
+					return { index: i[0], proposal: i[1], proposer: i[2], sponsors: d.map(v => v ? v.sponsors : null), bond: d.map(v => v ? v.bond : null) };
+				}) : []).map(x=>x, 2),
+				active: Bond.all([nextTally, referendumCount]).map(([f, t]) => [...Array(t - f)].map((_, i) => referendumInfoOf(f + i)), 1),
+				launchPeriod: storageValue('dem:lau', r => deslice(r, 'T::BlockNumber')),
+				minimumDeposit: storageValue('dem:min', r => deslice(r, 'T::Balance')),
+				votingPeriod: storageValue('dem:per', r => deslice(r, 'T::BlockNumber')),
+				depositOf
+			};
+		}
 
-		this.democracy = {
-			proposed: storageValue('dem:pub', r => r ? deslice(r, 'Vec<(PropIndex, Proposal, AccountId)>').map(i => ({ index: i[0], proposal: i[1], proposer: i[2] })) : []),
-			active: Bond.all([nextTally, referendumCount]).map(([f, t]) => [...Array(t - f)].map((_, i) => referendumInfoOf(f + i)), 1)
-		};
+		{
+			let candidates = storageValue('cou:vrs', r => r ? deslice(r, 'Vec<T::AccountId>') : []);
+			let registerInfoOf = storageMap('cou:reg', r => { let i = deslice(r, '(VoteIndex, u32)'); return { since: i[0], slot: i[1] }; });
+			this.council = {
+				candidacyBond: storageValue('cou:cbo', r => deslice(r, 'T::Balance')),
+				votingBond: storageValue('cou:vbo', r => deslice(r, 'T::Balance')),
+				presentSlashPerVoter: storageValue('cou:pss', r => deslice(r, 'T::Balance')),
+				carryCount: storageValue('cou:cco', r => deslice(r, 'u32')),
+				presentationDuration: storageValue('cou:pdu', r => deslice(r, 'T::BlockNumber')),
+				inactiveGracePeriod: storageValue('cou:vgp', r => deslice(r, 'VoteIndex')),
+				votingPeriod: storageValue('cou:per', r => deslice(r, 'T::BlockNumber')),
+				termDuration: storageValue('cou:trm', r => deslice(r, 'T::BlockNumber')),
+				desiredSeats: storageValue('cou:sts', r => deslice(r, 'u32')),
+				voteCount: storageValue('cou:vco', r => r ? deslice(r, 'VoteIndex') : 0),
+				active: storageValue('cou:act', r => r ? deslice(r, 'Vec<(T::AccountId, T::BlockNumber)>').map(i => ({ id: i[0], expires: i[1] })) : []),
 
-		let proposalVoters = storageMap('cov:voters:', r => r && deslice(r, 'Vec<AccountId>'));
-		let proposalVoteOf = storageMap('cov:vote:', r => !!r[0], i => new Uint8Array([...i[0], ...i[1]]));
+				voters: storageValue('cou:vrs', r => r ? deslice(r, 'Vec<T::AccountId>') : []),
+				candidates: candidates.mapEach((id, slot) => id.some(x => x) ? { slot, id, since: registerInfoOf(id).since } : null).map(l => l.filter(c => c)),
+				candidateInfoOf: registerInfoOf
+			};
+		}
 
-		this.councilVoting = {
-			cooloffPeriod: storageValue('cov:cooloff', r => deslice(r, 'BlockNumber')),
-			votingPeriod: storageValue('cov:period', r => deslice(r, 'BlockNumber')),
-			proposals: storageValue('cov:prs', r => deslice(r, 'Vec<(BlockNumber, Hash)>').map(i => ({
-				ends: i[0],
-				hash: i[1],
-				proposal: storageMap('cov:pro', r => r && deslice(r, 'Proposal'))(i[1]),
-				votes: proposalVoters(i[1]).map(r => r || []).mapEach(v => proposalVoteOf([i[1], v])).map(x => {
-					var r = [0, 0];
-					x.forEach(i => r[i ? 1 : 0]++);
-					return {aye: r[1], nay: r[0]};
-				})
-			}))).map(x=>x, 2)
-		};
+		{
+			let proposalVoters = storageMap('cov:voters:', r => r && deslice(r, 'Vec<AccountId>'));
+			let proposalVoteOf = storageMap('cov:vote:', r => r && !!r[0], i => new Uint8Array([...i[0], ...i[1]]));
+			this.councilVoting = {
+				cooloffPeriod: storageValue('cov:cooloff', r => deslice(r, 'BlockNumber')),
+				votingPeriod: storageValue('cov:period', r => deslice(r, 'BlockNumber')),
+				proposals: storageValue('cov:prs', r => deslice(r, 'Vec<(BlockNumber, Hash)>').map(i => ({
+					ends: i[0],
+					hash: i[1],
+					proposal: storageMap('cov:pro', r => r && deslice(r, 'Proposal'))(i[1]),
+					votes: proposalVoters(i[1]).map(r => r || []).mapEach(v => proposalVoteOf([i[1], v])).map(tally)
+				}))).map(x=>x, 2)
+			};
+		}
 
 		window.polkadot = this;
 		window.req = req;
