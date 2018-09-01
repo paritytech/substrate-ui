@@ -4,7 +4,7 @@ const {ReactiveComponent, Rimg} = require('oo7-react');
 const {Label, Input} = require('semantic-ui-react');
 const {InputBond} = require('./InputBond');
 const nacl = require('tweetnacl');
-const {stringToSeed, hexToBytes, bytesToHex, ss58_decode, ss58_encode} = require('./polkadot.js');
+const {stringToSeed, hexToBytes, bytesToHex, ss58_decode, ss58_encode} = require('oo7-polkadot');
 
 /*
 				<div>
