@@ -1,7 +1,7 @@
 import oo7 from 'oo7';
 import {Rspan} from 'oo7-react';
 import React from 'react';
-import {Polkadot, ss58_decode, ss58_encode, bytesToHex, pretty} from 'oo7-polkadot';
+import {Polkadot, AccountId, ss58_decode, ss58_encode, bytesToHex, pretty} from 'oo7-polkadot';
 import {AccountIdBond} from './AccountIdBond.jsx';
 import {ReactiveComponent} from 'oo7-react';
 import Identicon from 'polkadot-identicon';
@@ -35,7 +35,6 @@ export class ValidatorBalances extends ReactiveComponent {
 						: null
 					)
 				}
-				
 			</div>))}
 		</div>)
 	}
@@ -70,6 +69,7 @@ export class App extends React.Component {
 	}
 	render() {
 		return (<div>
+			<div><Identicon size='32' id={new AccountId([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])}/></div>
 			<div>Chain: <div style={{marginLeft: '1em'}}>
 				<div>Height: <Dot value={this.pd.header(this.pd.head).number}/></div>
 				<div>Code: <Dot value={this.pd.codeSize}/> bytes (<Dot value={this.pd.codeHash.map(bytesToHex)}/>)</div>
