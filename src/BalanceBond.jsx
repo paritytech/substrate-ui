@@ -29,20 +29,23 @@ class BalanceBond extends InputBond {
 
 	makeAction (p) {
 		return p ? 'right' : (<Dropdown
+			button
+			basic
+			floating
 			onChange={(_, v) => this.setUnits(v.value)}
 			value={this.getUnits()}
 			options={denominations
 				.filter(x => x[0] == x[0].toLowerCase())
 				.map(d => ({key: d, value: d, text: d}))
 			}
-		/>);
+		/>)
 	}
 }
 BalanceBond.defaultProps = {
 	placeholder: '0',
 	defaultValue: '0',
 	validator: (u, s) => {
-		let q = u === '' ? { denom: 3, units: '0', decimals: '', origNum: '', origDenom: ''} : interpretRender(u, null);
+		let q = u === '' ? { denom: s.internal.denom || 4, units: '0', decimals: '', origNum: '', origDenom: ''} : interpretRender(u, null);
 		let d = q && q.denom !== null ? q.origNum : undefined;
 		if (q) {
 			defDenom(q, s.internal ? s.internal.denom : 4);

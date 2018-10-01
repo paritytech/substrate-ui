@@ -4,14 +4,11 @@ const {Label, Icon} = require('semantic-ui-react');
 
 function styleStatus (value) {
 	return (
-		value.broadcasting ? { text: 'broadcasting', icon: 'bullseye', color: 'blue', basic: true } :
-		value.broadcast ? { text: 'finalising', icon: 'spinner', color: 'green', basic: true, loading: true } :
-		value.finalised ? { text: 'finalised', icon: 'check', color: 'green', basic: false } :
-		value.failed ?
-			value.failed.code == -32015 ? { text: 'invalid', icon: 'exclamation', color: 'red', basic: true } :
-			value.failed.code == -32040 ? { text: 'rejected', icon: 'x', color: 'grey', basic: true } :
-			value.failed.code == -32040 ? { text: 'usurped', icon: 'x', color: 'grey', basic: true } :
-			null :
+		value.signing ? { text: 'signing', icon: 'key', color: 'grey' } :
+		value.sending ? { text: 'sending', icon: 'wifi', color: 'grey' } :
+		value.broadcast ? { text: 'finalising', icon: 'cog', color: 'grey', loading: true } :
+		value.finalised ? { text: 'finalised', icon: 'check', color: 'green' } :
+		value.failed ? { text: 'failed', icon: 'exclamation', color: 'red' } :
 		null
 	);
 }
@@ -28,7 +25,7 @@ class TransactionProgressLabel extends ReactiveComponent {
 		return (<Label
 			pointing={this.props.pointing}
 			color={this.props.color || status.color}
-			basic={this.props.basic == null ? status.basic : this.props.basic}
+			basic={false}
 		>
 			{this.props.showIcon ? (<Icon
 				name={status.icon}
@@ -44,7 +41,6 @@ class TransactionProgressLabel extends ReactiveComponent {
 TransactionProgressLabel.defaultProps = {
 	showContent: true,
 	showIcon: true,
-	basic: null,
 	current: 0,
 	total: 0
 };

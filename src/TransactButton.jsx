@@ -73,7 +73,7 @@ class TransactButton extends ReactiveComponent {
 			colorPolicy={this.props.colorPolicy}
 			disabled={this.state.disabled || !this.state.enabled}
 		/>
-	}//
+	}
 }
 TransactButton.defaultProps = {
 	statusText: false,
@@ -96,6 +96,7 @@ class TransactButtonAux extends ReactiveComponent {
 		let statusColor = status ? status.color : null;
 		let labelColor = (this.props.colorPolicy === 'button' && !specialColor ? this.props.color : null) || statusColor || this.props.color;
 		let buttonColor = (this.props.colorPolicy === 'status' ? statusColor : this.props.color) || this.props.color || statusColor;
+		console.log("TxButAux", labelColor, buttonColor, specialColor)
 		return (<Button
 			icon={this.state.status === null || !clickable ? this.props.icon : 'check'}
 			size={this.props.size}
@@ -120,7 +121,6 @@ class TransactButtonAux extends ReactiveComponent {
 				showContent={this.props.statusText}
 				showIcon={this.props.statusIcon}
 				color={labelColor}
-				basic={labelColor == buttonColor && !specialColor ? undefined : false}
 			/>) : null}
 			disabled={!done && this.props.disabled}
 		/>);

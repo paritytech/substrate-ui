@@ -9,7 +9,7 @@ import {BalanceBond} from './BalanceBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
 import {ReactiveComponent} from 'oo7-react';
 import Identicon from 'polkadot-identicon';
-const {Button} = require('semantic-ui-react');
+const {Button, Icon, Label, Menu, Dropdown} = require('semantic-ui-react');
 const {blake2b} = require('blakejs');
 
 export class Dot extends ReactiveComponent {
@@ -61,6 +61,13 @@ export class WithPolkadot extends React.Component {
 		}
 	}
 }
+
+const options = [
+	{ key: 1, text: 'Choice 1', value: 1 },
+	{ key: 2, text: 'Choice 2', value: 2 },
+	{ key: 3, text: 'Choice 3', value: 3 },
+  ]
+  
 
 export class App extends React.Component {
 	constructor () {
