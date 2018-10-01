@@ -39,7 +39,7 @@
     "polkadot-identicon": "^1.0.9",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "semantic-ui-css": "^2.3.1",
+    "semantic-ui-css": "^2.3.3",
     "semantic-ui-react": "^0.79.1",
     "style-loader": "^0.20.3",
     "tweetnacl": "^1.0.0",

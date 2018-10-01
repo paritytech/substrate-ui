@@ -1,10 +1,16 @@
+require('semantic-ui-css/semantic.min.css');
+
 import oo7 from 'oo7';
 import {Rspan} from 'oo7-react';
 import React from 'react';
-import {Polkadot, AccountId, ss58_decode, ss58_encode, bytesToHex, pretty} from 'oo7-polkadot';
-import {AccountIdBond} from './AccountIdBond.jsx';
+import {Polkadot, AccountId, ss58_decode, ss58_encode, bytesToHex, pretty, polkadot} from 'oo7-polkadot';
+import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
+import {BalanceBond} from './BalanceBond.jsx';
+import {TransactButton} from './TransactButton.jsx';
 import {ReactiveComponent} from 'oo7-react';
 import Identicon from 'polkadot-identicon';
+const {Button} = require('semantic-ui-react');
+const {blake2b} = require('blakejs');
 
 export class Dot extends ReactiveComponent {
 	constructor () {
@@ -40,12 +46,27 @@ export class ValidatorBalances extends ReactiveComponent {
 	}
 }
 
+export class WithPolkadot extends React.Component {
+	constructor () {
+		super ()
+		this.state = {ready: false}
+		let that = this
+		polkadot().whenReady(() => that.setState({ready: true}))
+	}
+	render () {
+		if (this.state.ready) {
+			return this.props.children
+		} else {
+			return <div/>
+		}
+	}
+}
+
 export class App extends React.Component {
 	constructor () {
 		super();
-		var polkadot = new Polkadot;
-		this.pd = polkadot;
-		this.validators = polkadot.session.validators
+		this.pd = polkadot();
+/*		this.validators = polkadot.session.validators
 			.map(v => v.map(who => ({
 				who,
 				ownBalance: polkadot.staking.votingBalance(who),
@@ -65,15 +86,46 @@ export class App extends React.Component {
 			.sort((a, b) => b.balance - a.balance)
 			.filter(i => !c.some(x => x+'' == i.who+''))
 			.slice(0, 3)
-		);	
+		);*/
+		window.blake2b = blake2b;
+		window.polkadot = polkadot();
+		this.source = new oo7.Bond;
+		this.amount = new oo7.Bond;
+		this.destination = new oo7.Bond;
 	}
 	render() {
 		return (<div>
 			<div><Identicon size='32' id={new AccountId([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])}/></div>
+			<div>System: <div style={{marginLeft: '1em'}}>
+				<div>Name: <Dot className="value" value={this.pd.system.name}/></div>
+				<div>Chain: <Dot className="value" value={this.pd.system.chain}/></div>
+				<div>Version: <Dot className="value" value={this.pd.system.version}/></div>
+			</div></div>
 			<div>Chain: <div style={{marginLeft: '1em'}}>
-				<div>Height: <Dot value={this.pd.header(this.pd.head).number}/></div>
-				<div>Code: <Dot value={this.pd.codeSize}/> bytes (<Dot value={this.pd.codeHash.map(bytesToHex)}/>)</div>
-				<div>Authorities: <Dot value={this.pd.consensus.authorities}/></div>
+				<div>Height: <Dot className="value" value={this.pd.chain.height}/></div>
+				<div>Code: <Dot className="value" value={this.pd.state.codeSize}/> bytes (<Dot className="value" value={this.pd.state.codeHash.map(bytesToHex)}/>)</div>
+				<div>Authorities: <Dot className="value" value={this.pd.state.authorities}/></div>
+			</div></div>
+			<SignerBond bond={this.source}/>
+			(balance: <Dot value={this.pd.runtime.balances.balance(this.source)} />,
+			nonce: <Dot value={this.pd.runtime.system.accountNonce(this.source)} />)
+			<BalanceBond bond={this.amount}/>
+			<AccountIdBond bond={this.destination}/>
+			(balance: <Dot value={this.pd.runtime.balances.balance(this.destination)} />)
+			<TransactButton
+				content="Send"
+				tx={{
+					sender: this.source,
+					call: oo7.Bond
+						.all([this.destination, this.amount])
+						.map(([d, a]) => polkadot().call.balances.transfer(d, a))
+				}}
+			/>
+		</div>);
+	}
+}
+/*
+
 				<div>Validators: <ValidatorBalances value={this.validators}/></div>
 				<div>Next 3 Up: <Dot value={this.nextThreeUp}/></div>
 			</div></div>
@@ -101,13 +153,6 @@ export class App extends React.Component {
 				<div>Voting Period: <Dot value={this.pd.councilVoting.votingPeriod}/></div>
 				<div>Cooloff Period: <Dot value={this.pd.councilVoting.cooloffPeriod}/></div>
 				<div>Proposals: <Dot value={this.pd.councilVoting.proposals}/></div>
-			</div></div>
-		</div>);
-	}
-}
-/*
-
-
 
 
 */
