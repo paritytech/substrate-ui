@@ -27,7 +27,7 @@ function defDenom(v, d) {
 function interpretRender(s) {
 	try {
 	let m = s.toLowerCase().match(/([0-9,]+)(\.([0-9]*))? *([a-zA-Z]+)?/);
-		let di = m[4] ? substrate().denominations().indexOf(m[4]) : defaultDenom();
+		let di = m[4] ? substrate().denominations().indexOf(m[4]) : null;
 		if (di === -1) {
 			return null;
 		}
@@ -93,7 +93,17 @@ BalanceBond.defaultProps = {
 	placeholder: '0',
 	defaultValue: '',
 	validator: (u, s) => {
-		let q = u === '' ? { denom: s.internal && s.internal.denom || defaultDenom(), units: '0', decimals: '', origNum: '', origDenom: ''} : interpretRender(u, null);
+		let q = u === ''
+			? {
+				denom: s.internal && s.internal.denom !== null
+					? s.internal.denom
+					: defaultDenom(),
+				units: '0',
+				decimals: '',
+				origNum: '',
+				origDenom: ''
+			}
+			: interpretRender(u, null);
 		let d = q && q.denom !== null ? q.origNum : undefined;
 		if (q) {
 			defDenom(q, s.internal ? s.internal.denom : defaultDenom());

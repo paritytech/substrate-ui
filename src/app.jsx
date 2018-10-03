@@ -4,7 +4,7 @@ const {Button, Icon, Label, Menu, Dropdown} = require('semantic-ui-react');
 const {blake2b} = require('blakejs');
 
 import oo7 from 'oo7';
-import {ReactiveComponent, If} from 'oo7-react';
+import {ReactiveComponent, If, Rspan} from 'oo7-react';
 import {AccountId, bytesToHex, pretty, substrate} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
@@ -121,17 +121,13 @@ export class App extends React.Component {
 	// TODO: catch subscription throws. 
 	render() {
 		return (<div>
-			<div><Identicon size='32' id={new AccountId([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])}/></div>
-			<div>System: <div style={{marginLeft: '1em'}}>
-				<div>Name: <Dot className="value" value={this.pd.system.name}/></div>
-				<div>Chain: <Dot className="value" value={this.pd.system.chain}/></div>
-				<div>Version: <Dot className="value" value={this.pd.system.version}/></div>
-			</div></div>
-			<div>Chain: <div style={{marginLeft: '1em'}}>
-				<div>Height: <Dot className="value" value={this.pd.chain.height}/></div>
-				<div>Code: <Dot className="value" value={this.pd.state.codeSize}/> bytes (<Dot className="value" value={this.pd.state.codeHash.map(bytesToHex)}/>)</div>
-				<div>Authorities: <Dot className="value" value={this.pd.state.authorities}/></div>
-			</div></div>
+			<div>
+				<Label>Name <Label.Detail><Dot className="value" value={this.pd.system.name}/></Label.Detail></Label>
+				<Label>Chain <Label.Detail><Dot className="value" value={this.pd.system.chain}/></Label.Detail></Label>
+				<Label>Version <Label.Detail><Dot className="value" value={this.pd.system.version}/></Label.Detail></Label>
+				<Label>Height <Label.Detail><Dot className="value" value={this.pd.chain.height}/></Label.Detail></Label>
+				<Label>Authorities <Label.Detail><Rspan className="value">{this.pd.state.authorities.mapEach(a => <Identicon key={a} id={a} size={16}/>)}</Rspan></Label.Detail></Label>
+			</div>
 			<SignerBond bond={this.source}/>
 			<If condition={this.source.ready()} then={<span>
 				<Label>Balance
