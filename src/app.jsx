@@ -4,21 +4,12 @@ const {Button, Icon, Label, Menu, Dropdown} = require('semantic-ui-react');
 const {blake2b} = require('blakejs');
 
 import oo7 from 'oo7';
-import {ReactiveComponent} from 'oo7-react';
+import {ReactiveComponent, If} from 'oo7-react';
 import {AccountId, bytesToHex, pretty, substrate} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
-
-class If extends ReactiveComponent {
-	constructor () { super (['condition']) }
-	render () {
-		return this.state.condition ?
-			this.props.then :
-			this.props.else || (<span/>)
-	}
-}
 
 export class Dot extends ReactiveComponent {
 	constructor () {
@@ -124,11 +115,10 @@ export class App extends React.Component {
 		this.destination = new oo7.Bond;
 		this.tx = {
 			sender: this.source,
-			call: oo7.Bond
-				.all([this.destination, this.amount])
-				.map(([d, a]) => substrate().call.balances.transfer(d, a))		// TODO: should be able to accept bonds directly
+			call: substrate().call.balances.transfer(this.destination, this.amount)
 		};
 	}
+	// TODO: catch subscription throws. 
 	render() {
 		return (<div>
 			<div><Identicon size='32' id={new AccountId([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])}/></div>
@@ -142,7 +132,7 @@ export class App extends React.Component {
 				<div>Code: <Dot className="value" value={this.pd.state.codeSize}/> bytes (<Dot className="value" value={this.pd.state.codeHash.map(bytesToHex)}/>)</div>
 				<div>Authorities: <Dot className="value" value={this.pd.state.authorities}/></div>
 			</div></div>
-			<SignerBond bond={this.source} label='From'/>
+			<SignerBond bond={this.source}/>
 			<If condition={this.source.ready()} then={<span>
 				<Label>Balance
 					<Label.Detail>
