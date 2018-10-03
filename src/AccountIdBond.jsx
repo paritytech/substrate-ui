@@ -5,7 +5,7 @@ const Identicon = require('polkadot-identicon').default;
 const {Label, Input} = require('semantic-ui-react');
 const {InputBond} = require('./InputBond');
 const nacl = require('tweetnacl');
-const {stringToSeed, hexToBytes, bytesToHex, ss58_decode, ss58_encode, secretStore} = require('oo7-polkadot');
+const {stringToSeed, hexToBytes, bytesToHex, ss58_decode, ss58_encode, secretStore} = require('oo7-substrate');
 
 class AccountIdBond extends InputBond {
 	constructor () { super() }
@@ -25,16 +25,7 @@ class AccountIdBond extends InputBond {
 			position: 'absolute',
 			zIndex: this.props.labelZIndex || 10
 		};
-		return (
-			<div>
-				{InputBond.prototype.render.call(this)}
-				<div>
-					{/*this.state.ok && this.state.extra.knowSecret
-						? (<Label pointing color='green' basic content='Available for signing' style={labelStyle} />)
-					: ''*/}
-				</div>
-			</div>
-		);
+		return InputBond.prototype.render.call(this);
 	}
 }
 AccountIdBond.defaultProps = {

@@ -1,6 +1,7 @@
 const React = require('react');
+const {ReadyBond} = require('oo7');
 const {ReactiveComponent} = require('oo7-react');
-const {post} = require('oo7-polkadot');
+const {post} = require('oo7-substrate');
 const {Button} = require('semantic-ui-react');
 const {TransactionProgressLabel, styleStatus} = require('./TransactionProgressLabel');
 
@@ -86,7 +87,7 @@ TransactButton.defaultProps = {
 
 class TransactButtonAux extends ReactiveComponent {
 	constructor() {
-		super(['status']);
+		super(['status', 'disabled']);
 	}
 	render() {
 		let specialColor = this.props.primary || this.props.secondary;
@@ -96,7 +97,6 @@ class TransactButtonAux extends ReactiveComponent {
 		let statusColor = status ? status.color : null;
 		let labelColor = (this.props.colorPolicy === 'button' && !specialColor ? this.props.color : null) || statusColor || this.props.color;
 		let buttonColor = (this.props.colorPolicy === 'status' ? statusColor : this.props.color) || this.props.color || statusColor;
-		console.log("TxButAux", labelColor, buttonColor, specialColor)
 		return (<Button
 			icon={this.state.status === null || !clickable ? this.props.icon : 'check'}
 			size={this.props.size}
@@ -122,7 +122,7 @@ class TransactButtonAux extends ReactiveComponent {
 				showIcon={this.props.statusIcon}
 				color={labelColor}
 			/>) : null}
-			disabled={!done && this.props.disabled}
+			disabled={!done && this.state.disabled}
 		/>);
 	}
 }

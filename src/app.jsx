@@ -1,25 +1,37 @@
-require('semantic-ui-css/semantic.min.css');
-
-import oo7 from 'oo7';
-import {Rspan} from 'oo7-react';
 import React from 'react';
-import {Polkadot, AccountId, ss58_decode, ss58_encode, bytesToHex, pretty, polkadot} from 'oo7-polkadot';
-import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
-import {BalanceBond} from './BalanceBond.jsx';
-import {TransactButton} from './TransactButton.jsx';
-import {ReactiveComponent} from 'oo7-react';
-import Identicon from 'polkadot-identicon';
+require('semantic-ui-css/semantic.min.css');
 const {Button, Icon, Label, Menu, Dropdown} = require('semantic-ui-react');
 const {blake2b} = require('blakejs');
 
+import oo7 from 'oo7';
+import {ReactiveComponent} from 'oo7-react';
+import {AccountId, bytesToHex, pretty, substrate} from 'oo7-substrate';
+import Identicon from 'polkadot-identicon';
+import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
+import {BalanceBond} from './BalanceBond.jsx';
+import {TransactButton} from './TransactButton.jsx';
+
+class If extends ReactiveComponent {
+	constructor () { super (['condition']) }
+	render () {
+		return this.state.condition ?
+			this.props.then :
+			this.props.else || (<span/>)
+	}
+}
+
 export class Dot extends ReactiveComponent {
 	constructor () {
-		super(["value", "className"])
+		super(["value", "default", "className"])
 	}
-	render() {
-		return (<span className={this.state.className} name={this.props.name}>
-			{(this.props.prefix || '') + pretty(this.state.value) + (this.props.suffix || '')}
-		</span>)
+	render () {
+		if (this.ready() || this.props.default == null) {
+			return (<span className={this.state.className} name={this.props.name}>
+				{(this.props.prefix || '') + pretty(this.state.value) + (this.props.suffix || '')}
+			</span>)
+		} else {
+			return <span>{this.props.default}</span>			
+		}
 	}
 }
 
@@ -46,12 +58,12 @@ export class ValidatorBalances extends ReactiveComponent {
 	}
 }
 
-export class WithPolkadot extends React.Component {
+export class WithSubstrate extends React.Component {
 	constructor () {
 		super ()
 		this.state = {ready: false}
 		let that = this
-		polkadot().whenReady(() => that.setState({ready: true}))
+		substrate().whenReady(() => that.setState({ready: true}))
 	}
 	render () {
 		if (this.state.ready) {
@@ -62,17 +74,28 @@ export class WithPolkadot extends React.Component {
 	}
 }
 
-const options = [
-	{ key: 1, text: 'Choice 1', value: 1 },
-	{ key: 2, text: 'Choice 2', value: 2 },
-	{ key: 3, text: 'Choice 3', value: 3 },
-  ]
-  
-
 export class App extends React.Component {
 	constructor () {
 		super();
-		this.pd = polkadot();
+		/*const denominationInfoDOT = {
+			denominations: {
+				dot: 15,
+				point: 12,
+				µdot: 9,
+			},
+			primary: 'dot',
+			unit: 'planck',
+			ticker: 'DOT'
+		}*/
+		const denominationInfoBBQ = {
+			denominations: {
+				bbq: 15,
+			},
+			primary: 'bbq',
+			unit: 'birch',
+			ticker: 'BBQ'
+		}
+		this.pd = substrate(denominationInfoBBQ);
 /*		this.validators = polkadot.session.validators
 			.map(v => v.map(who => ({
 				who,
@@ -95,10 +118,16 @@ export class App extends React.Component {
 			.slice(0, 3)
 		);*/
 		window.blake2b = blake2b;
-		window.polkadot = polkadot();
+		window.substrate = this.pd;
 		this.source = new oo7.Bond;
 		this.amount = new oo7.Bond;
 		this.destination = new oo7.Bond;
+		this.tx = {
+			sender: this.source,
+			call: oo7.Bond
+				.all([this.destination, this.amount])
+				.map(([d, a]) => substrate().call.balances.transfer(d, a))		// TODO: should be able to accept bonds directly
+		};
 	}
 	render() {
 		return (<div>
@@ -113,20 +142,32 @@ export class App extends React.Component {
 				<div>Code: <Dot className="value" value={this.pd.state.codeSize}/> bytes (<Dot className="value" value={this.pd.state.codeHash.map(bytesToHex)}/>)</div>
 				<div>Authorities: <Dot className="value" value={this.pd.state.authorities}/></div>
 			</div></div>
-			<SignerBond bond={this.source}/>
-			(balance: <Dot value={this.pd.runtime.balances.balance(this.source)} />,
-			nonce: <Dot value={this.pd.runtime.system.accountNonce(this.source)} />)
+			<SignerBond bond={this.source} label='From'/>
+			<If condition={this.source.ready()} then={<span>
+				<Label>Balance
+					<Label.Detail>
+						<Dot value={this.pd.runtime.balances.balance(this.source)}/>
+					</Label.Detail>
+				</Label>
+				<Label>Nonce
+					<Label.Detail>
+						<Dot value={this.pd.runtime.system.accountNonce(this.source)}/>
+					</Label.Detail>
+				</Label>
+			</span>}/>
 			<BalanceBond bond={this.amount}/>
 			<AccountIdBond bond={this.destination}/>
-			(balance: <Dot value={this.pd.runtime.balances.balance(this.destination)} />)
+			<If condition={this.destination.ready()} then={
+				<Label>Balance
+					<Label.Detail>
+						<Dot value={this.pd.runtime.balances.balance(this.destination)}/>
+					</Label.Detail>
+				</Label>
+			}/>
 			<TransactButton
 				content="Send"
-				tx={{
-					sender: this.source,
-					call: oo7.Bond
-						.all([this.destination, this.amount])
-						.map(([d, a]) => polkadot().call.balances.transfer(d, a))
-				}}
+				tx={this.tx}
+				enabled={Bond.all([this.tx]).ready()}
 			/>
 		</div>);
 	}
