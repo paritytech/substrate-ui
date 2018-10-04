@@ -114,8 +114,8 @@ export class App extends React.Component {
 		this.amount = new oo7.Bond;
 		this.destination = new oo7.Bond;
 		this.tx = {
-			sender: this.source,
-			call: substrate().call.balances.transfer(this.destination, this.amount)
+			sender: substrate().runtime.balances.tryIndex(this.source),
+			call: substrate().call.balances.transfer(substrate().runtime.balances.tryIndex(this.destination), this.amount)
 		};
 	}
 	// TODO: catch subscription throws. 
