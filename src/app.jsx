@@ -110,6 +110,7 @@ export class App extends React.Component {
 		);*/
 		window.blake2b = blake2b;
 		window.substrate = this.pd;
+		window.that = this;
 		this.source = new oo7.Bond;
 		this.amount = new oo7.Bond;
 		this.destination = new oo7.Bond;
