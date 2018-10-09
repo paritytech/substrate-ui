@@ -8,3 +8,14 @@ init({
 	unit: 'birch',
 	ticker: 'BBQ'
 })
+
+/*const denominationInfoDOT = {
+	denominations: {
+		dot: 15,
+		point: 12,
+		µdot: 9,
+	},
+	primary: 'dot',
+	unit: 'planck',
+	ticker: 'DOT'
+}*/

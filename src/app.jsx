@@ -5,7 +5,7 @@ const {blake2b} = require('blakejs');
 
 import oo7 from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
-import {AccountId, bytesToHex, pretty, substrate} from 'oo7-substrate';
+import {pretty, calls, storage, chain, system, initRuntime} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
@@ -21,7 +21,7 @@ export class Dot extends ReactiveComponent {
 				{(this.props.prefix || '') + pretty(this.state.value) + (this.props.suffix || '')}
 			</span>)
 		} else {
-			return <span>{this.props.default}</span>			
+			return <span>{this.props.default}</span>
 		}
 	}
 }
@@ -53,13 +53,12 @@ export class WithSubstrate extends React.Component {
 	constructor () {
 		super ()
 		this.state = { ready: false }
-		substrate()	// get things ready early now for when it does eventually mount
+		initRuntime()
 	}
 
 	componentDidMount () {
-		console.log('HERE')
 		let that = this
-		substrate().whenReady(() => that.setState({ ready: true }))
+		initRuntime(() => that.setState({ ready: true }))
 	}
 
 	render () {
@@ -75,25 +74,25 @@ let intentionIndexOf = id =>
 	new oo7.TransformBond((i, id) => {
 		let ss58 = ss58_encode(id);
 		return i.findIndex(a => ss58_encode(a) === ss58);
-	}, [substrate().runtime.staking.intentions, id])
+	}, [storage.staking.intentions, id])
 
 let validatorIndexOf = id =>
 	new oo7.TransformBond((i, id) => {
 		let ss58 = ss58_encode(id);
 		return i.findIndex(a => ss58_encode(a) === ss58);
-	}, [substrate().runtime.session.validators, id])
+	}, [storage.session.validators, id])
 
 let bondageOf = id =>
 	new oo7.TransformBond(
 		(b, h) => h >= b ? null : (b - h),
-		[substrate().runtime.staking.bondage(id), substrate().chain.height]
+		[storage.staking.bondage(id), chain.height]
 	)
 
 let nominationIndex = (val, nom) =>
 	new oo7.TransformBond((i, id) => {
 		let ss58 = ss58_encode(id);
 		return i.findIndex(a => ss58_encode(a) === ss58);
-	}, [substrate().runtime.staking.nominatorsFor(nom), val])
+	}, [storage.staking.nominatorsFor(nom), val])
 
 export class StakingStatusLabel extends ReactiveComponent {
 	constructor () {
@@ -101,7 +100,7 @@ export class StakingStatusLabel extends ReactiveComponent {
 			intentionIndex: ({id}) => intentionIndexOf(id),
 			validatorIndex: ({id}) => validatorIndexOf(id),
 			bondage: ({id}) => bondageOf(id),
-			nominating: ({id}) => substrate().runtime.staking.nominating(id)
+			nominating: ({id}) => storage.staking.nominating(id)
 		})
 	}
 	render () {
@@ -126,17 +125,6 @@ export class StakingStatusLabel extends ReactiveComponent {
 export class App extends React.Component {
 	constructor () {
 		super();
-		/*const denominationInfoDOT = {
-			denominations: {
-				dot: 15,
-				point: 12,
-				µdot: 9,
-			},
-			primary: 'dot',
-			unit: 'planck',
-			ticker: 'DOT'
-		}*/
-		this.pd = substrate();
 /*		this.validators = polkadot.session.validators
 			.map(v => v.map(who => ({
 				who,
@@ -159,7 +147,9 @@ export class App extends React.Component {
 			.slice(0, 3)
 		);*/
 		window.blake2b = blake2b;
-		window.substrate = this.pd;
+		window.storage = storage;
+		window.chain = chain;
+		window.calls = calls;
 		window.that = this;
 		window.intentionIndexOf = intentionIndexOf;
 		window.validatorIndexOf = validatorIndexOf;
@@ -173,11 +163,11 @@ export class App extends React.Component {
 	render() {
 		return (<div>
 			<div>
-				<Label>Name <Label.Detail><Dot className="value" value={this.pd.system.name}/></Label.Detail></Label>
-				<Label>Chain <Label.Detail><Dot className="value" value={this.pd.system.chain}/></Label.Detail></Label>
-				<Label>Version <Label.Detail><Dot className="value" value={this.pd.system.version}/></Label.Detail></Label>
-				<Label>Height <Label.Detail><Dot className="value" value={this.pd.chain.height}/></Label.Detail></Label>
-				<Label>Authorities <Label.Detail><Rspan className="value">{this.pd.state.authorities.mapEach(a => <Identicon key={a} id={a} size={16}/>)}</Rspan></Label.Detail></Label>
+				<Label>Name <Label.Detail><Dot className="value" value={system.name}/></Label.Detail></Label>
+				<Label>Chain <Label.Detail><Dot className="value" value={system.chain}/></Label.Detail></Label>
+				<Label>Version <Label.Detail><Dot className="value" value={system.version}/></Label.Detail></Label>
+				<Label>Height <Label.Detail><Dot className="value" value={chain.height}/></Label.Detail></Label>
+				<Label>Authorities <Label.Detail><Rspan className="value">{storage.core.authorities.mapEach(a => <Identicon key={a} id={a} size={16}/>)}</Rspan></Label.Detail></Label>
 			</div>
 			<Segment style={{margin: '1em'}}>
 				<Header as='h2'>
@@ -193,12 +183,12 @@ export class App extends React.Component {
 					<If condition={this.source.ready()} then={<span>
 						<Label>Balance
 							<Label.Detail>
-								<Dot value={this.pd.runtime.balances.balance(this.source)}/>
+								<Dot value={storage.balances.balance(this.source)}/>
 							</Label.Detail>
 						</Label>
 						<Label>Nonce
 							<Label.Detail>
-								<Dot value={this.pd.runtime.system.accountNonce(this.source)}/>
+								<Dot value={storage.system.accountNonce(this.source)}/>
 							</Label.Detail>
 						</Label>
 					</span>}/>
@@ -209,7 +199,7 @@ export class App extends React.Component {
 					<If condition={this.destination.ready()} then={
 						<Label>Balance
 							<Label.Detail>
-								<Dot value={this.pd.runtime.balances.balance(this.destination)}/>
+								<Dot value={storage.balances.balance(this.destination)}/>
 							</Label.Detail>
 						</Label>
 					}/>
@@ -222,8 +212,8 @@ export class App extends React.Component {
 					content="Send"
 					icon='send'
 					tx={{
-						sender: substrate().runtime.balances.tryIndex(this.source),
-						call: substrate().call.balances.transfer(substrate().runtime.balances.tryIndex(this.destination), this.amount)
+						sender: storage.balances.tryIndex(this.source),
+						call: calls.balances.transfer(storage.balances.tryIndex(this.destination), this.amount)
 					}}
 				/>
 			</Segment>
@@ -242,12 +232,12 @@ export class App extends React.Component {
 					<If condition={this.staker.ready()} then={<span>
 						<Label>Balance
 							<Label.Detail>
-								<Dot value={this.pd.runtime.balances.balance(this.staker)}/>
+								<Dot value={storage.balances.balance(this.staker)}/>
 							</Label.Detail>
 						</Label>
 						<Label>Nonce
 							<Label.Detail>
-								<Dot value={this.pd.runtime.system.accountNonce(this.staker)}/>
+								<Dot value={storage.system.accountNonce(this.staker)}/>
 							</Label.Detail>
 						</Label>
 						<StakingStatusLabel id={this.staker}/>
@@ -260,12 +250,12 @@ export class App extends React.Component {
 					<If condition={this.nomination.ready()} then={<span>
 						<Label>Balance
 							<Label.Detail>
-								<Dot value={this.pd.runtime.balances.balance(this.nomination)}/>
+								<Dot value={storage.balances.balance(this.nomination)}/>
 							</Label.Detail>
 						</Label>
 						<Label>Nonce
 							<Label.Detail>
-								<Dot value={this.pd.runtime.system.accountNonce(this.nomination)}/>
+								<Dot value={storage.system.accountNonce(this.nomination)}/>
 							</Label.Detail>
 						</Label>
 						<StakingStatusLabel id={this.nomination}/>
@@ -277,8 +267,8 @@ export class App extends React.Component {
 						content="Stake"
 						icon="sign in"
 						tx={{
-							sender: substrate().runtime.balances.tryIndex(this.staker),
-							call: substrate().call.staking.stake()
+							sender: storage.balances.tryIndex(this.staker),
+							call: calls.staking.stake()
 						}}
 						positive
 						enabled={intentionIndexOf(this.staker).map(i => i === -1).default(false)}
@@ -287,8 +277,8 @@ export class App extends React.Component {
 						content="Unstake"
 						icon="sign out"
 						tx={{
-							sender: substrate().runtime.balances.tryIndex(this.staker),
-							call: substrate().call.staking.unstake(intentionIndexOf(this.staker))
+							sender: storage.balances.tryIndex(this.staker),
+							call: calls.staking.unstake(intentionIndexOf(this.staker))
 						}}
 						negative
 						enabled={intentionIndexOf(this.staker).map(i => i !== -1).default(false)}
@@ -297,8 +287,8 @@ export class App extends React.Component {
 						content="Nominate"
 						icon="hand point right"
 						tx={{
-							sender: substrate().runtime.balances.tryIndex(this.staker),
-							call: substrate().call.staking.nominate(substrate().runtime.balances.tryIndex(this.nomination))
+							sender: storage.balances.tryIndex(this.staker),
+							call: calls.staking.nominate(storage.balances.tryIndex(this.nomination))
 						}}
 						positive
 						enabled={nominationIndex(this.nomination, this.staker).map(i => i === -1).default(false)}
@@ -307,8 +297,8 @@ export class App extends React.Component {
 						content="Unnominate"
 						icon="thumbs down"
 						tx={{
-							sender: substrate().runtime.balances.tryIndex(this.staker),
-							call: substrate().call.staking.unnominate(nominationIndex(this.nomination, this.staker))
+							sender: storage.balances.tryIndex(this.staker),
+							call: calls.staking.unnominate(nominationIndex(this.nomination, this.staker))
 						}}
 						negative
 						enabled={nominationIndex(this.nomination, this.staker).map(i => i !== -1).default(false)}
@@ -324,29 +314,29 @@ export class App extends React.Component {
 				<div>Next 3 Up: <Dot value={this.nextThreeUp}/></div>
 			</div></div>
 			<div>Democracy: <div style={{marginLeft: '1em'}}>
-				<div>Active referenda: <Dot value={this.pd.democracy.active}/></div>
-				<div>Proposed referenda: <Dot value={this.pd.democracy.proposed}/></div>
-				<div>Launch period: <Dot value={this.pd.democracy.launchPeriod}/></div>
-				<div>Minimum deposit: <Dot value={this.pd.democracy.minimumDeposit}/></div>
-				<div>Voting period: <Dot value={this.pd.democracy.votingPeriod}/></div>
+				<div>Active referenda: <Dot value={storage.democracy.active}/></div>
+				<div>Proposed referenda: <Dot value={storage.democracy.proposed}/></div>
+				<div>Launch period: <Dot value={storage.democracy.launchPeriod}/></div>
+				<div>Minimum deposit: <Dot value={storage.democracy.minimumDeposit}/></div>
+				<div>Voting period: <Dot value={storage.democracy.votingPeriod}/></div>
 			</div></div>
 			<div>Council: <div style={{marginLeft: '1em'}}>
-				<div>Members: <Dot value={this.pd.council.active}/></div>
-				<div>Candidates: <Dot value={this.pd.council.candidates}/></div>
-				<div>Candidacy bond: <Dot value={this.pd.council.candidacyBond}/></div>
-				<div>Voting bond: <Dot value={this.pd.council.votingBond}/></div>
-				<div>Present slash per voter: <Dot value={this.pd.council.presentSlashPerVoter}/></div>
-				<div>Carry count: <Dot value={this.pd.council.carryCount}/></div>
-				<div>Presentation duration: <Dot value={this.pd.council.presentationDuration}/></div>
-				<div>Inactive grace period: <Dot value={this.pd.council.inactiveGracePeriod}/></div>
-				<div>Voting period: <Dot value={this.pd.council.votingPeriod}/></div>
-				<div>Term duration: <Dot value={this.pd.council.termDuration}/></div>
-				<div>Desired seats: <Dot value={this.pd.council.desiredSeats}/></div>
+				<div>Members: <Dot value={storage.council.active}/></div>
+				<div>Candidates: <Dot value={storage.council.candidates}/></div>
+				<div>Candidacy bond: <Dot value={storage.council.candidacyBond}/></div>
+				<div>Voting bond: <Dot value={storage.council.votingBond}/></div>
+				<div>Present slash per voter: <Dot value={storage.council.presentSlashPerVoter}/></div>
+				<div>Carry count: <Dot value={storage.council.carryCount}/></div>
+				<div>Presentation duration: <Dot value={storage.council.presentationDuration}/></div>
+				<div>Inactive grace period: <Dot value={storage.council.inactiveGracePeriod}/></div>
+				<div>Voting period: <Dot value={storage.council.votingPeriod}/></div>
+				<div>Term duration: <Dot value={storage.council.termDuration}/></div>
+				<div>Desired seats: <Dot value={storage.council.desiredSeats}/></div>
 			</div></div>
 			<div>Council Voting: <div style={{marginLeft: '1em'}}>
-				<div>Voting Period: <Dot value={this.pd.councilVoting.votingPeriod}/></div>
-				<div>Cooloff Period: <Dot value={this.pd.councilVoting.cooloffPeriod}/></div>
-				<div>Proposals: <Dot value={this.pd.councilVoting.proposals}/></div>
+				<div>Voting Period: <Dot value={storage.councilVoting.votingPeriod}/></div>
+				<div>Cooloff Period: <Dot value={storage.councilVoting.cooloffPeriod}/></div>
+				<div>Proposals: <Dot value={storage.councilVoting.proposals}/></div>
 
 
 */
