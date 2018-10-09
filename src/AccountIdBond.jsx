@@ -33,9 +33,9 @@ AccountIdBond.defaultProps = {
 	validator: a => {
 		let x = ss58_decode(a);
 		if (x) {
-			return { external: new AccountId(x), internal: a, ok: true, extra: { knowSecret: !!secretStore.keys[a] } };
+			return { external: new AccountId(x), internal: a, ok: true, extra: { knowSecret: !!secretStore().keys[a] } };
 		}
-		let y = secretStore.find(a);
+		let y = secretStore().find(a);
 		if (y) {
 			return { external: new AccountId(ss58_decode(y.address)), internal: a, ok: true, extra: { knowSecret: true } };
 		}
@@ -53,10 +53,10 @@ SignerBond.defaultProps = {
 	placeholder: 'Name or address',
 	validator: a => {
 		let x = ss58_decode(a);
-		if (x && secretStore.keys[a]) {
+		if (x && secretStore().keys[a]) {
 			return { external: new AccountId(x), internal: a, ok: true };
 		}
-		let y = secretStore.find(a);
+		let y = secretStore().find(a);
 		if (y) {
 			return { external: new AccountId(ss58_decode(y.address)), internal: a, ok: true };
 		}

@@ -1,7 +1,7 @@
 const React = require('react');
-const {ReadyBond} = require('oo7');
+const {Bond} = require('oo7');
 const {ReactiveComponent} = require('oo7-react');
-const {post} = require('oo7-substrate');
+const {post, substrate} = require('oo7-substrate');
 const {Button} = require('semantic-ui-react');
 const {TransactionProgressLabel, styleStatus} = require('./TransactionProgressLabel');
 
@@ -33,7 +33,7 @@ class TransactButton extends ReactiveComponent {
 			let t = single ? this.props.tx : this.props.tx[s.index];
 			s.status = typeof(t) === 'function'
 				? t()
-				: post(t);
+				: post(t, substrate());
 			s.status.tie((x, i) => {
 				if (this.props.order ? this.props.causal ? x.confirmed || x.scheduled : x.signed : x.requested) {
 					this.execNext();
@@ -72,7 +72,7 @@ class TransactButton extends ReactiveComponent {
 			statusText={this.props.statusText}
 			statusIcon={this.props.statusIcon}
 			colorPolicy={this.props.colorPolicy}
-			disabled={this.state.disabled || !this.state.enabled}
+			disabled={Bond.all([this.props.tx]).ready().map(txReady => !txReady || this.state.disabled || !this.state.enabled)}
 		/>
 	}
 }

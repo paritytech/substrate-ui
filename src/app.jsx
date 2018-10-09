@@ -1,6 +1,6 @@
 import React from 'react';
 require('semantic-ui-css/semantic.min.css');
-const {Button, Icon, Label, Menu, Dropdown} = require('semantic-ui-react');
+const {Button, Icon, Label, Menu, Dropdown, Header, Segment, Divider} = require('semantic-ui-react');
 const {blake2b} = require('blakejs');
 
 import oo7 from 'oo7';
@@ -52,16 +52,74 @@ export class ValidatorBalances extends ReactiveComponent {
 export class WithSubstrate extends React.Component {
 	constructor () {
 		super ()
-		this.state = {ready: false}
-		let that = this
-		substrate().whenReady(() => that.setState({ready: true}))
+		this.state = { ready: false }
+		substrate()	// get things ready early now for when it does eventually mount
 	}
+
+	componentDidMount () {
+		console.log('HERE')
+		let that = this
+		substrate().whenReady(() => that.setState({ ready: true }))
+	}
+
 	render () {
 		if (this.state.ready) {
 			return this.props.children
 		} else {
 			return <div/>
 		}
+	}
+}
+
+let intentionIndexOf = id =>
+	new oo7.TransformBond((i, id) => {
+		let ss58 = ss58_encode(id);
+		return i.findIndex(a => ss58_encode(a) === ss58);
+	}, [substrate().runtime.staking.intentions, id])
+
+let validatorIndexOf = id =>
+	new oo7.TransformBond((i, id) => {
+		let ss58 = ss58_encode(id);
+		return i.findIndex(a => ss58_encode(a) === ss58);
+	}, [substrate().runtime.session.validators, id])
+
+let bondageOf = id =>
+	new oo7.TransformBond(
+		(b, h) => h >= b ? null : (b - h),
+		[substrate().runtime.staking.bondage(id), substrate().chain.height]
+	)
+
+let nominationIndex = (val, nom) =>
+	new oo7.TransformBond((i, id) => {
+		let ss58 = ss58_encode(id);
+		return i.findIndex(a => ss58_encode(a) === ss58);
+	}, [substrate().runtime.staking.nominatorsFor(nom), val])
+
+export class StakingStatusLabel extends ReactiveComponent {
+	constructor () {
+		super (['id'], {
+			intentionIndex: ({id}) => intentionIndexOf(id),
+			validatorIndex: ({id}) => validatorIndexOf(id),
+			bondage: ({id}) => bondageOf(id),
+			nominating: ({id}) => substrate().runtime.staking.nominating(id)
+		})
+	}
+	render () {
+		let staked = this.state.intentionIndex !== -1
+		let validating = this.state.validatorIndex !== -1
+		let bondage = this.state.bondage
+		let nominating = this.state.nominating && this.state.nominating.length === 32
+		return staked && validating
+			? <Label><Icon name='certificate'/>Staked<Label.Detail>Validating</Label.Detail></Label>
+			: nominating
+			? <Label><Icon name='hand point right'/>Staked<Label.Detail>Nominating</Label.Detail></Label>
+			: staked
+			? <Label><Icon name='pause'/>Staked<Label.Detail>Idle</Label.Detail></Label>
+			: !staked && validating
+			? <Label><Icon name='sign out'/>Staked<Label.Detail>Retiring</Label.Detail></Label>
+			: !staked && bondage !== null
+			? <Label><Icon name='clock outline'/>Unstaking<Label.Detail>{bondage} blocks to go</Label.Detail></Label>
+			: <Label><Icon name='times'/>Not staked</Label>
 	}
 }
 
@@ -111,15 +169,15 @@ export class App extends React.Component {
 		window.blake2b = blake2b;
 		window.substrate = this.pd;
 		window.that = this;
+		window.intentionIndexOf = intentionIndexOf;
+		window.validatorIndexOf = validatorIndexOf;
 		this.source = new oo7.Bond;
 		this.amount = new oo7.Bond;
 		this.destination = new oo7.Bond;
-		this.tx = {
-			sender: substrate().runtime.balances.tryIndex(this.source),
-			call: substrate().call.balances.transfer(substrate().runtime.balances.tryIndex(this.destination), this.amount)
-		};
+		this.staker = new oo7.Bond;
+		this.nomination = new oo7.Bond;
 	}
-	// TODO: catch subscription throws. 
+
 	render() {
 		return (<div>
 			<div>
@@ -129,33 +187,142 @@ export class App extends React.Component {
 				<Label>Height <Label.Detail><Dot className="value" value={this.pd.chain.height}/></Label.Detail></Label>
 				<Label>Authorities <Label.Detail><Rspan className="value">{this.pd.state.authorities.mapEach(a => <Identicon key={a} id={a} size={16}/>)}</Rspan></Label.Detail></Label>
 			</div>
-			<SignerBond bond={this.source}/>
-			<If condition={this.source.ready()} then={<span>
-				<Label>Balance
-					<Label.Detail>
-						<Dot value={this.pd.runtime.balances.balance(this.source)}/>
-					</Label.Detail>
-				</Label>
-				<Label>Nonce
-					<Label.Detail>
-						<Dot value={this.pd.runtime.system.accountNonce(this.source)}/>
-					</Label.Detail>
-				</Label>
-			</span>}/>
-			<BalanceBond bond={this.amount}/>
-			<AccountIdBond bond={this.destination}/>
-			<If condition={this.destination.ready()} then={
-				<Label>Balance
-					<Label.Detail>
-						<Dot value={this.pd.runtime.balances.balance(this.destination)}/>
-					</Label.Detail>
-				</Label>
-			}/>
-			<TransactButton
-				content="Send"
-				tx={this.tx}
-				enabled={Bond.all([this.tx]).ready()}
-			/>
+			<Segment style={{margin: '1em'}}>
+				<Header as='h2'>
+					<Icon name='send' />
+					<Header.Content>
+						Send Funds
+						<Header.Subheader>Send funds from your account to another</Header.Subheader>
+					</Header.Content>
+				</Header>
+  				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>from</div>
+					<SignerBond bond={this.source}/>
+					<If condition={this.source.ready()} then={<span>
+						<Label>Balance
+							<Label.Detail>
+								<Dot value={this.pd.runtime.balances.balance(this.source)}/>
+							</Label.Detail>
+						</Label>
+						<Label>Nonce
+							<Label.Detail>
+								<Dot value={this.pd.runtime.system.accountNonce(this.source)}/>
+							</Label.Detail>
+						</Label>
+					</span>}/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>to</div>
+					<AccountIdBond bond={this.destination}/>
+					<If condition={this.destination.ready()} then={
+						<Label>Balance
+							<Label.Detail>
+								<Dot value={this.pd.runtime.balances.balance(this.destination)}/>
+							</Label.Detail>
+						</Label>
+					}/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>amount</div>
+					<BalanceBond bond={this.amount}/>
+				</div>
+				<TransactButton
+					content="Send"
+					icon='send'
+					tx={{
+						sender: substrate().runtime.balances.tryIndex(this.source),
+						call: substrate().call.balances.transfer(substrate().runtime.balances.tryIndex(this.destination), this.amount)
+					}}
+				/>
+			</Segment>
+			<Divider hidden />
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='certificate' />
+					<Header.Content>
+						Stake and Nominate
+						<Header.Subheader>Lock your funds and register your validator node or nominate another</Header.Subheader>
+					</Header.Content>
+				</Header>
+  				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>staking account</div>
+					<SignerBond bond={this.staker}/>
+					<If condition={this.staker.ready()} then={<span>
+						<Label>Balance
+							<Label.Detail>
+								<Dot value={this.pd.runtime.balances.balance(this.staker)}/>
+							</Label.Detail>
+						</Label>
+						<Label>Nonce
+							<Label.Detail>
+								<Dot value={this.pd.runtime.system.accountNonce(this.staker)}/>
+							</Label.Detail>
+						</Label>
+						<StakingStatusLabel id={this.staker}/>
+					</span>}/>
+				</div>
+
+  				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>nominated account</div>
+					<SignerBond bond={this.nomination}/>
+					<If condition={this.nomination.ready()} then={<span>
+						<Label>Balance
+							<Label.Detail>
+								<Dot value={this.pd.runtime.balances.balance(this.nomination)}/>
+							</Label.Detail>
+						</Label>
+						<Label>Nonce
+							<Label.Detail>
+								<Dot value={this.pd.runtime.system.accountNonce(this.nomination)}/>
+							</Label.Detail>
+						</Label>
+						<StakingStatusLabel id={this.nomination}/>
+					</span>}/>
+				</div>
+					
+				<div style={{paddingBottom: '1em'}}>
+					<TransactButton
+						content="Stake"
+						icon="sign in"
+						tx={{
+							sender: substrate().runtime.balances.tryIndex(this.staker),
+							call: substrate().call.staking.stake()
+						}}
+						positive
+						enabled={intentionIndexOf(this.staker).map(i => i === -1).default(false)}
+					/>
+					<TransactButton
+						content="Unstake"
+						icon="sign out"
+						tx={{
+							sender: substrate().runtime.balances.tryIndex(this.staker),
+							call: substrate().call.staking.unstake(intentionIndexOf(this.staker))
+						}}
+						negative
+						enabled={intentionIndexOf(this.staker).map(i => i !== -1).default(false)}
+					/>
+					<TransactButton
+						content="Nominate"
+						icon="hand point right"
+						tx={{
+							sender: substrate().runtime.balances.tryIndex(this.staker),
+							call: substrate().call.staking.nominate(substrate().runtime.balances.tryIndex(this.nomination))
+						}}
+						positive
+						enabled={nominationIndex(this.nomination, this.staker).map(i => i === -1).default(false)}
+					/>
+					<TransactButton
+						content="Unnominate"
+						icon="thumbs down"
+						tx={{
+							sender: substrate().runtime.balances.tryIndex(this.staker),
+							call: substrate().call.staking.unnominate(nominationIndex(this.nomination, this.staker))
+						}}
+						negative
+						enabled={nominationIndex(this.nomination, this.staker).map(i => i !== -1).default(false)}
+					/>
+				</div>
+			</Segment>
 		</div>);
 	}
 }
