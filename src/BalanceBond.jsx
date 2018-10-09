@@ -1,42 +1,42 @@
-const React = require('react');
-const {Dropdown} = require('semantic-ui-react');
-const {InputBond} = require('./InputBond');
-const {substrate} = require('oo7-substrate');
+const React = require('react')
+const {Dropdown} = require('semantic-ui-react')
+const {InputBond} = require('./InputBond')
+const {denominationInfo: {denominations, denominationInfo}} = require('oo7-substrate')
 
 function formatValueNoDenom(n) {
-	return `${n.units.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}${n.decimals ? '.' + n.decimals : ''}`;
+	return `${n.units.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}${n.decimals ? '.' + n.decimals : ''}`
 }
 
 function combineValue(v) {
-	let d = Math.pow(1000, v.denom);
-	let n = v.units;
+	let d = Math.pow(1000, v.denom)
+	let n = v.units
 	if (v.decimals) {
-		n += v.decimals;
-		d /= Math.pow(10, v.decimals.length);
+		n += v.decimals
+		d /= Math.pow(10, v.decimals.length)
 	}
-	return n * d;
+	return n * d
 }
 
 function defDenom(v, d) {
 	if (v.denom == null) {
-		v.denom = d;
+		v.denom = d
 	}
-	return v;
+	return v
 }
 
 function interpretRender(s) {
 	try {
-	let m = s.toLowerCase().match(/([0-9,]+)(\.([0-9]*))? *([a-zA-Z]+)?/);
-		let di = m[4] ? substrate().denominations().indexOf(m[4]) : null;
+	let m = s.toLowerCase().match(/([0-9,]+)(\.([0-9]*))? *([a-zA-Z]+)?/)
+		let di = m[4] ? denominations.indexOf(m[4]) : null
 		if (di === -1) {
-			return null;
+			return null
 		}
-		let n = (m[1].replace(',', '').replace(/^0*/, '')) || '0';
-		let d = (m[3] || '').replace(/0*$/, '');
-		return { denom: di, units: n, decimals: d, origNum: m[1] + (m[2] || ''), origDenom: m[4] || '' };
+		let n = (m[1].replace(',', '').replace(/^0*/, '')) || '0'
+		let d = (m[3] || '').replace(/0*$/, '')
+		return { denom: di, units: n, decimals: d, origNum: m[1] + (m[2] || ''), origDenom: m[4] || '' }
 	}
 	catch (e) {
-		return null;
+		return null
 	}
 }
 
@@ -45,28 +45,28 @@ class BalanceBond extends InputBond {
 	
 	getUnits () {
 		return this.state.ok
-			? substrate().denominations()[
+			? denominations[
 				this.state.internal
 					? this.state.internal.denom
 					: defaultDenom()
 			]
-			: defaultDenom();
+			: defaultDenom()
 	}
 
 	setUnits (v) {
-		let s = this.state.internal;
-		let d = substrate().denominations().indexOf(v);
-		s.denom = d;
-		this.state.internal = s;
-		this.handleEdit(this.state.display);
+		let s = this.state.internal
+		let d = denominations.indexOf(v)
+		s.denom = d
+		this.state.internal = s
+		this.handleEdit(this.state.display)
 	}
 
 	handleBlur () {
-		let s = this.state;
+		let s = this.state
 		if (typeof(s.corrected) === 'string') {
-			s.display = s.corrected;
-			delete s.corrected;
-			this.setState(s);
+			s.display = s.corrected
+			delete s.corrected
+			this.setState(s)
 		}
 	}
 
@@ -77,7 +77,7 @@ class BalanceBond extends InputBond {
 			floating
 			onChange={(_, v) => this.setUnits(v.value)}
 			value={this.getUnits()}
-			options={substrate().denominations()
+			options={denominations
 //				.filter(x => x[0] == x[0].toLowerCase())
 				.map(d => ({key: d, value: d, text: d}))
 			}
@@ -86,7 +86,7 @@ class BalanceBond extends InputBond {
 }
 
 function defaultDenom() {
-	return substrate().denominationInfo().denominations[substrate().denominationInfo().primary] / 3
+	return denominations[denominationInfo.primary] / 3
 }
 
 BalanceBond.defaultProps = {
@@ -103,10 +103,10 @@ BalanceBond.defaultProps = {
 				origNum: '',
 				origDenom: ''
 			}
-			: interpretRender(u, null);
-		let d = q && q.denom !== null ? q.origNum : undefined;
+			: interpretRender(u, null)
+		let d = q && q.denom !== null ? q.origNum : undefined
 		if (q) {
-			defDenom(q, s.internal ? s.internal.denom : defaultDenom());
+			defDenom(q, s.internal ? s.internal.denom : defaultDenom())
 		}
 		return q ? {
 			internal: q,
@@ -114,8 +114,8 @@ BalanceBond.defaultProps = {
 			corrected: formatValueNoDenom(q),
 			external: combineValue(q),
 			ok: true
-		} : null;
+		} : null
 	}
-};
+}
 
-module.exports = { BalanceBond };
+module.exports = { BalanceBond }

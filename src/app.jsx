@@ -136,15 +136,7 @@ export class App extends React.Component {
 			unit: 'planck',
 			ticker: 'DOT'
 		}*/
-		const denominationInfoBBQ = {
-			denominations: {
-				bbq: 15,
-			},
-			primary: 'bbq',
-			unit: 'birch',
-			ticker: 'BBQ'
-		}
-		this.pd = substrate(denominationInfoBBQ);
+		this.pd = substrate();
 /*		this.validators = polkadot.session.validators
 			.map(v => v.map(who => ({
 				who,
