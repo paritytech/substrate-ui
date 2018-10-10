@@ -1,3 +1,4 @@
+import React from 'react';
 import { ReactiveComponent } from 'oo7-react';
 import { pretty } from 'oo7-substrate';
 
