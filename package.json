@@ -1,7 +1,7 @@
 {
-  "name": "polkadot-ui",
+  "name": "substrate-ui",
   "version": "1.0.0",
-  "description": "Polkadot UI",
+  "description": "A Simple Substrate UI",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,7 +15,8 @@
     ]
   },
   "keywords": [
-    "polkadot",
+	"polkadot",
+	"substrate",
     "ui"
   ],
   "author": "Gav Wood",
@@ -33,9 +34,9 @@
     "bs58": "^4.0.1",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",
-    "oo7": "file:../oo7/packages/oo7",
-    "oo7-react": "file:../oo7/packages/oo7-react",
-    "oo7-substrate": "file:../oo7/packages/oo7-substrate",
+    "oo7": "^0.7.0",
+    "oo7-react": "^0.6.0",
+    "oo7-substrate": "^0.2.0",
     "polkadot-identicon": "^1.0.9",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
