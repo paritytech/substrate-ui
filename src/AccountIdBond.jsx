@@ -5,7 +5,7 @@ const Identicon = require('polkadot-identicon').default;
 const {Label, Input} = require('semantic-ui-react');
 const {InputBond} = require('./InputBond');
 const nacl = require('tweetnacl');
-const {stringToSeed, hexToBytes, bytesToHex, storage, secretStore, ss58Decode, AccountId} = require('oo7-substrate');
+const {stringToSeed, hexToBytes, bytesToHex, runtime, secretStore, ss58Decode, AccountId} = require('oo7-substrate');
 
 class AccountIdBond extends InputBond {
 	constructor () { super() }
@@ -33,9 +33,9 @@ AccountIdBond.defaultProps = {
 	validator: a => {
 		let y = secretStore().find(a);
 		if (y) {
-			return { external: new AccountId(ss58_decode(y.address)), internal: a, ok: true, extra: { knowSecret: true } };
+			return { external: new AccountId(ss58Decode(y.address)), internal: a, ok: true, extra: { knowSecret: true } };
 		}
-		return storage.balances.ss58Decode(a).map(
+		return runtime.balances.ss58Decode(a).map(
 			x => x
 				? { external: x, internal: a, ok: true, extra: { knowSecret: !!secretStore().keys[a] } }
 				: null,
@@ -56,7 +56,7 @@ SignerBond.defaultProps = {
 		if (y) {
 			return { external: ss58Decode(y.address), internal: a, ok: true };
 		}
-		return storage.balances.ss58Decode(a).map(
+		return runtime.balances.ss58Decode(a).map(
 			x => x && secretStore().keys[ss58Encode(x)]
 				? { external: x, internal: a, ok: true }
 				: null,
