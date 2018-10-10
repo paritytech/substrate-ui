@@ -1,7 +1,7 @@
 const React = require('react')
 const {Dropdown} = require('semantic-ui-react')
 const {InputBond} = require('./InputBond')
-const {denominationInfo: {denominations, denominationInfo}} = require('oo7-substrate')
+const {denominations, denominationInfo} = require('oo7-substrate').denominationInfo
 
 function formatValueNoDenom(n) {
 	return `${n.units.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}${n.decimals ? '.' + n.decimals : ''}`
@@ -26,7 +26,7 @@ function defDenom(v, d) {
 
 function interpretRender(s) {
 	try {
-	let m = s.toLowerCase().match(/([0-9,]+)(\.([0-9]*))? *([a-zA-Z]+)?/)
+		let m = s.toLowerCase().match(/([0-9,]+)(\.([0-9]*))? *([a-zA-Z]+)?/)
 		let di = m[4] ? denominations.indexOf(m[4]) : null
 		if (di === -1) {
 			return null
@@ -41,8 +41,10 @@ function interpretRender(s) {
 }
 
 class BalanceBond extends InputBond {
-	constructor () { super(); }
-	
+	constructor() {
+		super()
+	}
+
 	getUnits () {
 		return this.state.ok
 			? denominations[
@@ -86,7 +88,7 @@ class BalanceBond extends InputBond {
 }
 
 function defaultDenom() {
-	return denominations[denominationInfo.primary] / 3
+	return denominations.indexOf(denominationInfo.primary)
 }
 
 BalanceBond.defaultProps = {

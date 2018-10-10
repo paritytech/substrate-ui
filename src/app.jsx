@@ -5,7 +5,7 @@ const {blake2b} = require('blakejs');
 
 import oo7 from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
-import {pretty, calls, storage, chain, system, initRuntime} from 'oo7-substrate';
+import {pretty, calls, storage, chain, system, runtimeUp} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
@@ -49,6 +49,8 @@ export class ValidatorBalances extends ReactiveComponent {
 	}
 }
 
+// TODO: Repot
+/*
 export class WithSubstrate extends React.Component {
 	constructor () {
 		super ()
@@ -69,6 +71,8 @@ export class WithSubstrate extends React.Component {
 		}
 	}
 }
+*/
+// TODO: Repot
 
 let intentionIndexOf = id =>
 	new oo7.TransformBond((i, id) => {
@@ -122,9 +126,9 @@ export class StakingStatusLabel extends ReactiveComponent {
 	}
 }
 
-export class App extends React.Component {
+export class App extends ReactiveComponent {
 	constructor () {
-		super();
+		super([], { ensureRuntime: runtimeUp })
 /*		this.validators = polkadot.session.validators
 			.map(v => v.map(who => ({
 				who,
@@ -160,7 +164,7 @@ export class App extends React.Component {
 		this.nomination = new oo7.Bond;
 	}
 
-	render() {
+	readyRender() {
 		return (<div>
 			<div>
 				<Label>Name <Label.Detail><Dot className="value" value={system.name}/></Label.Detail></Label>
