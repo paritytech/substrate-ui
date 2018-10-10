@@ -84,8 +84,10 @@ class InputBond extends ReactiveComponent {
 		} else {
 			let a = v !== undefined && this.props.validator(v, this.state);
 			if (a instanceof Promise || Bond.instanceOf(a)) {
+				console.log('Awaiting bond for latest edit...')
 				let thisSymbol = this.latestEdit;
 				a.then(r => {
+					console.log('Got latest edit', r)
 					if (this.latestEdit === thisSymbol)
 						f(r);
 				});

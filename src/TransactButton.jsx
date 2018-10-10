@@ -1,7 +1,7 @@
 const React = require('react');
 const {Bond} = require('oo7');
 const {ReactiveComponent} = require('oo7-react');
-const {post, substrate} = require('oo7-substrate');
+const {post} = require('oo7-substrate');
 const {Button} = require('semantic-ui-react');
 const {TransactionProgressLabel, styleStatus} = require('./TransactionProgressLabel');
 
@@ -33,7 +33,7 @@ class TransactButton extends ReactiveComponent {
 			let t = single ? this.props.tx : this.props.tx[s.index];
 			s.status = typeof(t) === 'function'
 				? t()
-				: post(t, substrate());
+				: post(t);
 			s.status.tie((x, i) => {
 				if (this.props.order ? this.props.causal ? x.confirmed || x.scheduled : x.signed : x.requested) {
 					this.execNext();
