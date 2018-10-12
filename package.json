@@ -15,8 +15,8 @@
     ]
   },
   "keywords": [
-	"polkadot",
-	"substrate",
+    "polkadot",
+    "substrate",
     "ui"
   ],
   "author": "Gav Wood",
@@ -26,18 +26,19 @@
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "webpack": "^4.5.0",
-    "webpack-cli": "^2.0.14"
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.1"
   },
   "dependencies": {
+    "bip39": "^2.5.0",
     "blakejs": "^1.1.0",
     "bs58": "^4.0.1",
     "css-loader": "^0.28.11",
     "file-loader": "^1.1.11",
     "oo7": "^0.7.0",
-    "oo7-react": "^0.6.0",
-    "oo7-substrate": "^0.2.0",
-    "polkadot-identicon": "^1.0.9",
+    "oo7-react": "^0.7.0",
+    "oo7-substrate": "^0.3.0",
+    "polkadot-identicon": "^1.1.2",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "semantic-ui-css": "^2.3.3",

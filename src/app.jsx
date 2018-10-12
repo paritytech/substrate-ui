@@ -1,16 +1,18 @@
 import React from 'react';
 require('semantic-ui-css/semantic.min.css');
-const {Icon, Label, Header, Segment, Divider} = require('semantic-ui-react');
-const {blake2b} = require('blakejs');
-
-import oo7 from 'oo7';
+const { generateMnemonic, mnemonicToSeed } = require('bip39')
+import {Icon, List, Label, Header, Segment, Divider, Button} from 'semantic-ui-react';
+import {Bond, TransformBond} from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
-import {calls, runtime, chain, system, runtimeUp} from 'oo7-substrate';
+import {calls, runtime, chain, system, runtimeUp, ss58Encode} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
+import {InputBond} from './InputBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
 import {StakingStatusLabel} from './StakingStatusLabel';
+import {WalletList} from './WalletList';
+import {TransformBondButton} from './TransformBondButton';
 import {Pretty} from './Pretty';
 
 export class App extends ReactiveComponent {
@@ -23,11 +25,16 @@ export class App extends ReactiveComponent {
 		window.calls = calls;
 		window.that = this;
 
-		this.source = new oo7.Bond;
-		this.amount = new oo7.Bond;
-		this.destination = new oo7.Bond;
-		this.staker = new oo7.Bond;
-		this.nomination = new oo7.Bond;
+		this.source = new Bond;
+		this.amount = new Bond;
+		this.destination = new Bond;
+		this.staker = new Bond;
+		this.nomination = new Bond;
+		this.name = new Bond;
+		this.seed = new Bond;
+		this.seed.trigger(generateMnemonic())
+		this.seedAccount = this.seed.map(secretStore().accountFromSeed)
+		this.seedAccount.use()
 	}
 
 	readyRender() {
@@ -52,6 +59,44 @@ export class App extends ReactiveComponent {
 				</Label.Detail></Label>
 			</div>
 			<Segment style={{margin: '1em'}}>
+				<Header as='h2'>
+					<Icon name='key' />
+					<Header.Content>
+						Wallet
+						<Header.Subheader>Manage your secret keys</Header.Subheader>
+					</Header.Content>
+				</Header>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>name</div>
+					<InputBond
+						icon={<Identicon account={this.seedAccount} size={32} />}
+						bond={this.name}
+						placeholder='A name for this key'
+						validator={n => !n || secretStore().find(n) ? null : n}
+					/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>seed</div>
+					<InputBond
+						bond={this.seed}
+						reversible
+						placeholder='Some seed for this key'
+					/>
+					<Button content="Another" onClick={() => this.seed.trigger(generateMnemonic())} />
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<TransformBondButton
+						content='Create'
+						transform={(name, seed) => secretStore().submit(seed, name)}
+						args={[this.name, this.seed]}
+					/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<WalletList/>
+				</div>
+			</Segment>
+			<Divider hidden />
+			<Segment style={{margin: '1em'}} padded>
 				<Header as='h2'>
 					<Icon name='send' />
 					<Header.Content>

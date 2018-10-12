@@ -11,8 +11,8 @@ export class ValidatorBalances extends ReactiveComponent {
 		if (!this.state.value) return (<div/>)
 		return (<div className={this.state.className || 'validator-balances'} name={this.props.name}>
 			{this.state.value.map((v, i) => (<div key={i} className="validator-balance">
-				<div className="validator"><Identicon id={v.who} size={52}/></div>
-				<div className="nominators">{v.nominators.map(a => <Identicon id={a} size={24}/>)}</div>
+				<div className="validator"><Identicon account={v.who} size={52}/></div>
+				<div className="nominators">{v.nominators.map(a => <Identicon account={a} size={24}/>)}</div>
 				<div className="AccountId">{pretty(v.who).substr(0, 8) + '…'}</div>
 				<div className="Balance">{pretty(v.balance)}</div>
 				{

@@ -1,3 +1,4 @@
+const React = require('react');
 const { Icon, Label } = require('semantic-ui-react');
 
 import { ReactiveComponent } from 'oo7-react';

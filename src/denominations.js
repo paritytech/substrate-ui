@@ -1,4 +1,4 @@
-const { denominationInfo: { init } } = require('oo7-substrate')
+const { setNetworkDefault, denominationInfo: { init } } = require('oo7-substrate')
 
 init({
 	denominations: {
@@ -8,6 +8,8 @@ init({
 	unit: 'birch',
 	ticker: 'BBQ'
 })
+
+setNetworkDefault(68)
 
 /*const denominationInfoDOT = {
 	denominations: {

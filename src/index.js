@@ -5,6 +5,6 @@ import {App} from './app.jsx';
 import { setNodeUri } from 'oo7-substrate'
 require('./denominations')
 
-setNodeUri('wss://substrate-rpc.parity.io/')
+//setNodeUri('wss://substrate-rpc.parity.io/')
 
 render(<App/>, document.getElementById('app'));

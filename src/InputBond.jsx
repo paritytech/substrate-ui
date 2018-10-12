@@ -5,7 +5,7 @@ const {ReactiveComponent} = require('oo7-react');
 
 class InputBond extends ReactiveComponent {
 	constructor (extraReactiveProps = []) {
-		super(['defaultValue', ...extraReactiveProps]);
+		super(extraReactiveProps instanceof Array ? ['defaultValue', ...extraReactiveProps] : ['defaultValue']);
 		this.state = {
 			display: null,
 			internal: null,
