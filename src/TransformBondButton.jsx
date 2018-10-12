@@ -19,7 +19,7 @@ export class TransformBondButton extends ReactiveComponent {
 		let bond = this.props.bond
 			? this.props.bond()
 			: this.props.transform
-			? Bond.all(this.props.args).latched().map(args => this.props.transform(...args))
+			? this.argsBond.latched().map(args => this.props.transform(...args))
 			: undefined
 		if (bond) {
 			this.setState({ bond })
@@ -30,12 +30,30 @@ export class TransformBondButton extends ReactiveComponent {
 	}
 
 	render () {
-		return <Button
+		this.argsBond = Bond.all(this.props.args);
+		return <TransformBondButtonAux
 			content={this.state.content}
 			onClick={() => this.clicked()}
 			disabled={this.state.disabled || !!this.state.bond}
+			forceEnabled={this.state.result && !this.state.bond}
 			icon={this.state.result ? this.state.result.icon ? this.state.result.icon : 'tick' : this.state.icon }
 			label={this.state.result ? this.state.result.label ? this.state.result.label : 'Done' : this.state.label }
+			ready={this.argsBond.ready()}
+		/>
+	}
+}
+
+class TransformBondButtonAux extends ReactiveComponent {
+	constructor () {
+		super(['ready'])
+	}
+	render () {
+		return <Button
+			content={this.props.content}
+			onClick={this.props.onClick}
+			disabled={(this.props.disabled || !this.state.ready) && !this.props.forceEnabled}
+			icon={this.props.icon}
+			label={this.props.label}
 		/>
 	}
 }

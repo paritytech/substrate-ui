@@ -72,7 +72,7 @@ export class App extends ReactiveComponent {
 						icon={<Identicon account={this.seedAccount} size={32} />}
 						bond={this.name}
 						placeholder='A name for this key'
-						validator={n => !n || secretStore().find(n) ? null : n}
+						validator={n => n ? secretStore().map(ss => ss.byName[n] ? null : n) : null}
 					/>
 				</div>
 				<div style={{paddingBottom: '1em'}}>
@@ -139,6 +139,7 @@ export class App extends ReactiveComponent {
 					content="Send"
 					icon='send'
 					tx={{
+						longevity: true,
 						sender: runtime.balances.tryIndex(this.source),
 						call: calls.balances.transfer(runtime.balances.tryIndex(this.destination), this.amount)
 					}}

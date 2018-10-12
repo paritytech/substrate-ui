@@ -13,7 +13,7 @@ class AccountIdBond extends InputBond {
 		return p ? 'left' : this.state.ok
 				? (<i style={{opacity: 1}} className='icon'>
 					<Identicon
-						id={this.state.external}
+						account={this.state.external}
 						style={{marginTop: '3px'}}
 						size='32'
 					/></i>)
@@ -54,7 +54,8 @@ SignerBond.defaultProps = {
 	validator: a => {
 		let y = secretStore().find(a);
 		if (y) {
-			return { external: ss58Decode(y.address), internal: a, ok: true };
+			console.log('Found', y, a)
+			return { external: y.account, internal: a, ok: true };
 		}
 		return runtime.balances.ss58Decode(a).map(
 			x => x && secretStore().find(x)

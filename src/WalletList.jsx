@@ -10,14 +10,14 @@ export class WalletList extends ReactiveComponent {
 			secretStore: secretStore(),
 			shortForm: secretStore().map(ss => {
 				let r = {}
-				ss.keys.forEach(key => r[key] = runtime.balances.ss58Encode(runtime.balances.tryIndex(key.account)))
+				ss.keys.forEach(key => r[key.name] = runtime.balances.ss58Encode(runtime.balances.tryIndex(key.account)))
 				return r
 			})
 		})
 	}
 
 	readyRender () {
-		return <List divided verticalAlign='bottom' style={{padding: '0 0 4px 4px', overflow: 'scroll', height: '20em'}}>{
+		return <List divided verticalAlign='bottom' style={{padding: '0 0 4px 4px', overflow: 'auto', maxHeight: '20em'}}>{
 			this.state.secretStore.keys.map(key =>
 				<List.Item key={key.name}>
 					<List.Content floated='right'>
@@ -29,7 +29,7 @@ export class WalletList extends ReactiveComponent {
 					<List.Content>
 						<List.Header>{key.name}</List.Header>
 						<List.Description>
-							Address: {this.state.shortForm[key]}
+							{this.state.shortForm[key.name]}
 						</List.Description>
 					</List.Content>
 				</List.Item>

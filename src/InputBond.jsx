@@ -29,6 +29,10 @@ class InputBond extends ReactiveComponent {
 		if (this.props.bond && this.props.reversible && this.tieKey) {
 			this.props.bond.untie(this.tieKey);
 		}
+		if (this.cleanup) {
+			this.cleanup();
+			delete this.cleanup;
+		}
 	}
 
 	handleEdit(v, onlyDefault = false) {
@@ -77,6 +81,10 @@ class InputBond extends ReactiveComponent {
 			}
 		}.bind(this);
 
+		if (this.cleanup) {
+			this.cleanup();
+			delete this.cleanup;
+		}
 		this.setState({display: v, onlyDefault});
 
 		if (typeof(this.props.validator) !== 'function') {
@@ -85,10 +93,12 @@ class InputBond extends ReactiveComponent {
 			let a = v !== undefined && this.props.validator(v, this.state);
 			if (a instanceof Promise || Bond.instanceOf(a)) {
 				let thisSymbol = this.latestEdit;
-				a.then(r => {
-					if (this.latestEdit === thisSymbol)
+				let m = a.tie(r => {
+					if (this.latestEdit === thisSymbol) {
 						f(r);
+					}
 				});
+				this.cleanup = () => a.untie(m);
 			} else {
 				f(a);
 			}
