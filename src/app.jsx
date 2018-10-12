@@ -54,7 +54,7 @@ export class App extends ReactiveComponent {
 				</Label.Detail></Label>
 				<Label>Authorities <Label.Detail>
 					<Rspan className="value">{
-						runtime.core.authorities.mapEach(a => <Identicon key={a} id={a} size={16}/>)
+						runtime.core.authorities.mapEach(a => <Identicon key={a} account={a} size={16}/>)
 					}</Rspan>
 				</Label.Detail></Label>
 			</div>
