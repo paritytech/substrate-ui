@@ -131,6 +131,9 @@ class InputBond extends ReactiveComponent {
 //			console.log('newDefault', this.state.defaultValue);
 			this.resetValueToDefault();
 		}
+		let icon = this.makeIcon ? this.makeIcon() : this.props.icon
+		let iconPosition = this.makeIcon ? this.makeIcon(true) : this.props.iconPosition
+		console.log('render', icon, iconPosition)
 		return (<Input
 			className={this.props.className}
 			style={this.props.style}
@@ -152,8 +155,8 @@ class InputBond extends ReactiveComponent {
 			action={this.makeAction ? this.makeAction() : this.props.action}
 			label={this.makeLabel ? this.makeLabel() : this.props.label}
 			labelPosition={this.makeLabel ? this.makeLabel(true) : this.props.labelPosition}
-			icon={this.makeIcon ? this.makeIcon() : this.props.icon}
-			iconPosition={this.makeIcon ? this.makeIcon(true) : this.props.iconPosition}
+			icon={icon}
+			iconPosition={iconPosition}
 		/>);
 	}
 }

@@ -14,8 +14,8 @@ class AccountIdBond extends InputBond {
 				? (<i style={{opacity: 1}} className='icon'>
 					<Identicon
 						account={this.state.external}
-						style={{marginTop: '3px'}}
-						size='32'
+						style={{marginTop: '5px'}}
+						size='28'
 					/></i>)
 				: undefined;
 	}

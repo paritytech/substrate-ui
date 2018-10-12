@@ -67,28 +67,27 @@ export class App extends ReactiveComponent {
 					</Header.Content>
 				</Header>
 				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>name</div>
-					<InputBond
-						icon={<Identicon account={this.seedAccount} size={32} />}
-						bond={this.name}
-						placeholder='A name for this key'
-						validator={n => n ? secretStore().map(ss => ss.byName[n] ? null : n) : null}
-					/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
 					<div style={{fontSize: 'small'}}>seed</div>
 					<InputBond
 						bond={this.seed}
 						reversible
 						placeholder='Some seed for this key'
+						action={<Button content="Another" onClick={() => this.seed.trigger(generateMnemonic())} />}
+						iconPosition='left'
+						icon={<i style={{opacity: 1}} className='icon'><Identicon account={this.seedAccount} size={28} style={{marginTop: '5px'}}/></i>}
 					/>
-					<Button content="Another" onClick={() => this.seed.trigger(generateMnemonic())} />
 				</div>
 				<div style={{paddingBottom: '1em'}}>
-					<TransformBondButton
-						content='Create'
-						transform={(name, seed) => secretStore().submit(seed, name)}
-						args={[this.name, this.seed]}
+					<div style={{fontSize: 'small'}}>name</div>
+					<InputBond
+						bond={this.name}
+						placeholder='A name for this key'
+						validator={n => n ? secretStore().map(ss => ss.byName[n] ? null : n) : null}
+						action={<TransformBondButton
+							content='Create'
+							transform={(name, seed) => secretStore().submit(seed, name)}
+							args={[this.name, this.seed]}
+						/>}
 					/>
 				</div>
 				<div style={{paddingBottom: '1em'}}>
