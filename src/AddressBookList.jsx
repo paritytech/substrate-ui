@@ -21,7 +21,7 @@ export class AddressBookList extends ReactiveComponent {
 			this.state.addressBook.accounts.map(account =>
 				<List.Item key={account.name}>
 					<List.Content floated='right'>
-						<Button size='small' onClick={() => addressBook().forget(key)}>Delete</Button>
+						<Button size='small' onClick={() => addressBook().forget(account)}>Delete</Button>
 					</List.Content>
 					<span className='ui avatar image' style={{minWidth: '36px'}}>
 						<Identicon account={account.account} />
