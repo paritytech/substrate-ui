@@ -104,8 +104,8 @@ export class App extends ReactiveComponent {
 				<Header as='h2'>
 					<Icon name='search' />
 					<Header.Content>
-						Inspect
-						<Header.Subheader>Inspect the status of any account on the network</Header.Subheader>
+						Address Book
+						<Header.Subheader>Inspect the status of any account and name it for later use</Header.Subheader>
 					</Header.Content>
 				</Header>
   				<div style={{paddingBottom: '1em'}}>
