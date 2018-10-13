@@ -25,7 +25,7 @@ export class TransformBondButton extends ReactiveComponent {
 			this.setState({ bond })
 			let that = this
 			bond.map(result => that.setState({ result }))
-			bond.then(result => that.setState({ bond: null, result }))
+			bond.then(result => that.setState({ bond: null, result: that.props.immediate ? undefined : result }))
 		}
 	}
 

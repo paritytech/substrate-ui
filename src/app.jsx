@@ -92,6 +92,7 @@ export class App extends ReactiveComponent {
 							content='Create'
 							transform={(name, seed) => secretStore().submit(seed, name)}
 							args={[this.name, this.seed]}
+							immediate
 						/>}
 					/>
 				</div>
@@ -147,6 +148,7 @@ export class App extends ReactiveComponent {
 							content='Add'
 							transform={(name, account) => { addressBook().submit(account, name); return true }}
 							args={[this.nick, this.lookup]}
+							immediate
 						/>}
 					/>
 				</div>
