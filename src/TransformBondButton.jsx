@@ -7,12 +7,12 @@ export class TransformBondButton extends ReactiveComponent {
 	constructor () {
 		super (['content', 'disabled', 'icon'])
 
-		this.state = { bond: null, result: null }
+		this.state = { bond: null, result: undefined }
 	}
 
 	clicked () {
 		if (this.state.result) {
-			this.setState({ result: null })
+			this.setState({ result: undefined })
 			return
 		}
 

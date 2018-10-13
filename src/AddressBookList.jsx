@@ -1,16 +1,16 @@
 import React from 'react';
 import {List, Button} from 'semantic-ui-react';
 import {ReactiveComponent} from 'oo7-react';
-import {runtime, secretStore} from 'oo7-substrate';
+import {runtime, addressBook} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 
-export class WalletList extends ReactiveComponent {
+export class AddressBookList extends ReactiveComponent {
 	constructor () {
 		super([], {
-			secretStore: secretStore(),
-			shortForm: secretStore().map(ss => {
+			addressBook: addressBook(),
+			shortForm: addressBook().map(ss => {
 				let r = {}
-				ss.keys.forEach(key => r[key.name] = runtime.balances.ss58Encode(runtime.balances.tryIndex(key.account)))
+				ss.accounts.forEach(account => r[account.name] = runtime.balances.ss58Encode(runtime.balances.tryIndex(account.account)))
 				return r
 			})
 		})
@@ -18,18 +18,18 @@ export class WalletList extends ReactiveComponent {
 
 	readyRender () {
 		return <List divided verticalAlign='bottom' style={{padding: '0 0 4px 4px', overflow: 'auto', maxHeight: '20em'}}>{
-			this.state.secretStore.keys.map(key =>
-				<List.Item key={key.name}>
+			this.state.addressBook.accounts.map(account =>
+				<List.Item key={account.name}>
 					<List.Content floated='right'>
-						<Button size='small' onClick={() => secretStore().forget(key)}>Delete</Button>
+						<Button size='small' onClick={() => addressBook().forget(key)}>Delete</Button>
 					</List.Content>
 					<span className='ui avatar image' style={{minWidth: '36px'}}>
-						<Identicon account={key.account} />
+						<Identicon account={account.account} />
 					</span>
 					<List.Content>
-						<List.Header>{key.name}</List.Header>
+						<List.Header>{account.name}</List.Header>
 						<List.Description>
-							{this.state.shortForm[key.name]}
+							{this.state.shortForm[account.name]}
 						</List.Description>
 					</List.Content>
 				</List.Item>

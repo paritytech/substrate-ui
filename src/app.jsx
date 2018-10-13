@@ -1,10 +1,10 @@
 import React from 'react';
 require('semantic-ui-css/semantic.min.css');
-const { generateMnemonic, mnemonicToSeed } = require('bip39')
+const { generateMnemonic } = require('bip39')
 import {Icon, List, Label, Header, Segment, Divider, Button} from 'semantic-ui-react';
 import {Bond, TransformBond} from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
-import {calls, runtime, chain, system, runtimeUp, ss58Encode} from 'oo7-substrate';
+import {calls, runtime, chain, system, runtimeUp, ss58Encode, addressBook, secretStore} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
@@ -12,6 +12,7 @@ import {InputBond} from './InputBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
 import {StakingStatusLabel} from './StakingStatusLabel';
 import {WalletList} from './WalletList';
+import {AddressBookList} from './AddressBookList';
 import {TransformBondButton} from './TransformBondButton';
 import {Pretty} from './Pretty';
 
@@ -21,6 +22,8 @@ export class App extends ReactiveComponent {
 
 		// For debug only.
 		window.runtime = runtime;
+		window.secretStore = secretStore;
+		window.addressBook = addressBook;
 		window.chain = chain;
 		window.calls = calls;
 		window.that = this;
@@ -30,10 +33,11 @@ export class App extends ReactiveComponent {
 		this.destination = new Bond;
 		this.staker = new Bond;
 		this.nomination = new Bond;
+		this.nick = new Bond;
+		this.lookup = new Bond;
 		this.name = new Bond;
 		this.seed = new Bond;
-		this.seed.trigger(generateMnemonic())
-		this.seedAccount = this.seed.map(secretStore().accountFromSeed)
+		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromSeed(s) : undefined)
 		this.seedAccount.use()
 	}
 
@@ -72,6 +76,7 @@ export class App extends ReactiveComponent {
 						bond={this.seed}
 						reversible
 						placeholder='Some seed for this key'
+						validator={n => n || null}
 						action={<Button content="Another" onClick={() => this.seed.trigger(generateMnemonic())} />}
 						iconPosition='left'
 						icon={<i style={{opacity: 1}} className='icon'><Identicon account={this.seedAccount} size={28} style={{marginTop: '5px'}}/></i>}
@@ -92,6 +97,61 @@ export class App extends ReactiveComponent {
 				</div>
 				<div style={{paddingBottom: '1em'}}>
 					<WalletList/>
+				</div>
+			</Segment>
+			<Divider hidden />
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='search' />
+					<Header.Content>
+						Inspect
+						<Header.Subheader>Inspect the status of any account on the network</Header.Subheader>
+					</Header.Content>
+				</Header>
+  				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>lookup account</div>
+					<AccountIdBond bond={this.lookup}/>
+					<If condition={this.lookup.ready()} then={<div>
+						<Label>Balance
+							<Label.Detail>
+								<Pretty value={runtime.balances.balance(this.lookup)}/>
+							</Label.Detail>
+						</Label>
+						<Label>Nonce
+							<Label.Detail>
+								<Pretty value={runtime.system.accountNonce(this.lookup)}/>
+							</Label.Detail>
+						</Label>
+						<StakingStatusLabel id={this.lookup}/>
+						<If condition={runtime.balances.tryIndex(this.lookup, null).map(x => x !== null)} then={
+							<Label>Short-form
+								<Label.Detail>
+									<Rspan>{runtime.balances.tryIndex(this.lookup).map(ss58Encode)}</Rspan>
+								</Label.Detail>
+							</Label>
+						}/>
+						<Label>Address
+							<Label.Detail>
+								<Pretty value={this.lookup}/>
+							</Label.Detail>
+						</Label>
+					</div>}/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>name</div>
+					<InputBond
+						bond={this.nick}
+						placeholder='A name for this address'
+						validator={n => { console.log(n); return n ? addressBook().map(ss => ss.byName[n] ? null : n) : null}}
+						action={<TransformBondButton
+							content='Add'
+							transform={(name, account) => { addressBook().submit(account, name); return true }}
+							args={[this.nick, this.lookup]}
+						/>}
+					/>
+				</div>
+				<div style={{paddingBottom: '1em'}}>
+					<AddressBookList/>
 				</div>
 			</Segment>
 			<Divider hidden />
@@ -138,7 +198,6 @@ export class App extends ReactiveComponent {
 					content="Send"
 					icon='send'
 					tx={{
-						longevity: true,
 						sender: runtime.balances.tryIndex(this.source),
 						call: calls.balances.transfer(runtime.balances.tryIndex(this.destination), this.amount)
 					}}
@@ -173,7 +232,7 @@ export class App extends ReactiveComponent {
 
   				<div style={{paddingBottom: '1em'}}>
 					<div style={{fontSize: 'small'}}>nominated account</div>
-					<SignerBond bond={this.nomination}/>
+					<AccountIdBond bond={this.nomination}/>
 					<If condition={this.nomination.ready()} then={<span>
 						<Label>Balance
 							<Label.Detail>
@@ -225,10 +284,10 @@ export class App extends ReactiveComponent {
 						icon="thumbs down"
 						tx={{
 							sender: runtime.balances.tryIndex(this.staker),
-							call: calls.staking.unnominate(runtime.staking.nominationIndex(this.nomination, this.staker))
+							call: calls.staking.unnominate(runtime.staking.nominationIndex(this.staker))
 						}}
 						negative
-						enabled={runtime.staking.nominationIndex(this.nomination, this.staker).map(i => i !== -1).default(false)}
+						enabled={runtime.staking.nominationIndex(this.staker).map(i => i !== -1).default(false)}
 					/>
 				</div>
 			</Segment>
