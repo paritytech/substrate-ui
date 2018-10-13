@@ -133,7 +133,6 @@ class InputBond extends ReactiveComponent {
 		}
 		let icon = this.makeIcon ? this.makeIcon() : this.props.icon
 		let iconPosition = this.makeIcon ? this.makeIcon(true) : this.props.iconPosition
-		console.log('render', icon, iconPosition)
 		return (<Input
 			className={this.props.className}
 			style={this.props.style}

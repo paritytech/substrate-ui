@@ -33,12 +33,10 @@ AccountIdBond.defaultProps = {
 	validator: a => {
 		let y = secretStore().find(a);
 		if (y) {
-			console.log('ss found', a, y)
 			return { external: y.account, internal: a, ok: true, extra: { knowSecret: true } };
 		}
 		let z = addressBook().find(a);
 		if (z) {
-			console.log('ab found', a, z)
 			return { external: z.account, internal: a, ok: true, extra: { knowSecret: false } };
 		}
 		return runtime.balances.ss58Decode(a).map(
@@ -60,7 +58,6 @@ SignerBond.defaultProps = {
 	validator: a => {
 		let y = secretStore().find(a);
 		if (y) {
-			console.log('Found', y, a)
 			return { external: y.account, internal: a, ok: true };
 		}
 		return runtime.balances.ss58Decode(a).map(

@@ -142,7 +142,7 @@ export class App extends ReactiveComponent {
 					<InputBond
 						bond={this.nick}
 						placeholder='A name for this address'
-						validator={n => { console.log(n); return n ? addressBook().map(ss => ss.byName[n] ? null : n) : null}}
+						validator={n => n ? addressBook().map(ss => ss.byName[n] ? null : n) : null}
 						action={<TransformBondButton
 							content='Add'
 							transform={(name, account) => { addressBook().submit(account, name); return true }}
