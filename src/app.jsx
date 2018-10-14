@@ -37,7 +37,7 @@ export class App extends ReactiveComponent {
 		this.lookup = new Bond;
 		this.name = new Bond;
 		this.seed = new Bond;
-		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromSeed(s) : undefined)
+		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
 		this.seedAccount.use()
 	}
 
