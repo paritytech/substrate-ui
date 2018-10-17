@@ -5,7 +5,7 @@ const {ReactiveComponent} = require('oo7-react');
 
 class InputBond extends ReactiveComponent {
 	constructor (extraReactiveProps = []) {
-		super(['defaultValue', ...extraReactiveProps]);
+		super(extraReactiveProps instanceof Array ? ['defaultValue', ...extraReactiveProps] : ['defaultValue']);
 		this.state = {
 			display: null,
 			internal: null,
@@ -28,6 +28,10 @@ class InputBond extends ReactiveComponent {
 	componentWillUnmount () {
 		if (this.props.bond && this.props.reversible && this.tieKey) {
 			this.props.bond.untie(this.tieKey);
+		}
+		if (this.cleanup) {
+			this.cleanup();
+			delete this.cleanup;
 		}
 	}
 
@@ -77,6 +81,10 @@ class InputBond extends ReactiveComponent {
 			}
 		}.bind(this);
 
+		if (this.cleanup) {
+			this.cleanup();
+			delete this.cleanup;
+		}
 		this.setState({display: v, onlyDefault});
 
 		if (typeof(this.props.validator) !== 'function') {
@@ -85,10 +93,12 @@ class InputBond extends ReactiveComponent {
 			let a = v !== undefined && this.props.validator(v, this.state);
 			if (a instanceof Promise || Bond.instanceOf(a)) {
 				let thisSymbol = this.latestEdit;
-				a.then(r => {
-					if (this.latestEdit === thisSymbol)
+				let m = a.tie(r => {
+					if (this.latestEdit === thisSymbol) {
 						f(r);
+					}
 				});
+				this.cleanup = () => a.untie(m);
 			} else {
 				f(a);
 			}
@@ -121,6 +131,8 @@ class InputBond extends ReactiveComponent {
 //			console.log('newDefault', this.state.defaultValue);
 			this.resetValueToDefault();
 		}
+		let icon = this.makeIcon ? this.makeIcon() : this.props.icon
+		let iconPosition = this.makeIcon ? this.makeIcon(true) : this.props.iconPosition
 		return (<Input
 			className={this.props.className}
 			style={this.props.style}
@@ -142,8 +154,8 @@ class InputBond extends ReactiveComponent {
 			action={this.makeAction ? this.makeAction() : this.props.action}
 			label={this.makeLabel ? this.makeLabel() : this.props.label}
 			labelPosition={this.makeLabel ? this.makeLabel(true) : this.props.labelPosition}
-			icon={this.makeIcon ? this.makeIcon() : this.props.icon}
-			iconPosition={this.makeIcon ? this.makeIcon(true) : this.props.iconPosition}
+			icon={icon}
+			iconPosition={iconPosition}
 		/>);
 	}
 }

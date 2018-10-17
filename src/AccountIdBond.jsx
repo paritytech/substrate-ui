@@ -1,24 +1,23 @@
 const React = require('react');
 const {Bond} = require('oo7');
 const {ReactiveComponent, Rimg} = require('oo7-react');
+const Identicon = require('polkadot-identicon').default;
 const {Label, Input} = require('semantic-ui-react');
 const {InputBond} = require('./InputBond');
 const nacl = require('tweetnacl');
-const {stringToSeed, hexToBytes, bytesToHex, ss58_decode, ss58_encode} = require('./polkadot.js');
-
-/*
-				<div>
-					{this.state.ok
-						? ''
-						: this.state.extra.noChecksum
-							? (<Label pointing color='orange' basic content='No checksum' style={labelStyle} />)
-							: (<Label pointing basic content='Unknown/invalid address' style={labelStyle} />)}
-				</div>
-*/
+const {stringToSeed, hexToBytes, bytesToHex, runtime, secretStore, addressBook, ss58Decode, AccountId} = require('oo7-substrate');
 
 class AccountIdBond extends InputBond {
-	constructor () {
-		super();
+	constructor () { super() }
+	makeIcon (p) {
+		return p ? 'left' : this.state.ok
+				? (<i style={{opacity: 1}} className='icon'>
+					<Identicon
+						account={this.state.external}
+						style={{marginTop: '5px'}}
+						size='28'
+					/></i>)
+				: undefined;
 	}
 
 	render () {
@@ -26,41 +25,49 @@ class AccountIdBond extends InputBond {
 			position: 'absolute',
 			zIndex: this.props.labelZIndex || 10
 		};
-		return (
-			<div>
-				{InputBond.prototype.render.call(this)}
-					{
-					this.state.extra && this.state.extra.noChecksum
-						? (<Label pointing='left' color='orange' content='No checksum' style={labelStyle} />)
-					: this.state.extra && this.state.extra.secretSeed
-						? (<Label pointing='left' color='red' content='Secret key' style={labelStyle} />)
-					: ''
-					}
-			</div>
-		);
+		return InputBond.prototype.render.call(this);
 	}
 }
 AccountIdBond.defaultProps = {
-	placeholder: '0xHexAddress or Secret',
+	placeholder: 'Name or address',
 	validator: a => {
-		let x = ss58_decode(a);
-		if (x) {
-			return { external: x, internal: a, ok: true };
+		let y = secretStore().find(a);
+		if (y) {
+			return { external: y.account, internal: a, ok: true, extra: { knowSecret: true } };
 		}
-		let m = a.match(/^(0x)([a-fA-F0-9]+)$/);
-		if (m) {
-			if (m[2].length != 64) {
-				return null;
-			}
-			let addr = m[2];
-			return { external: hexToBytes(addr), internal: a, corrected: ss58_encode(hexToBytes(addr)), extra: { noChecksum: true } };
+		let z = addressBook().find(a);
+		if (z) {
+			return { external: z.account, internal: a, ok: true, extra: { knowSecret: false } };
 		}
-		else {
-			let p = nacl.sign.keyPair.fromSeed(stringToSeed(a));
-			return { external: p.publicKey, internal: a, corrected: ss58_encode(p.publicKey), extra: { secretSeed: true } };
-		}
+		return runtime.balances.ss58Decode(a).map(
+			x => x
+				? { external: x, internal: a, ok: true, extra: { knowSecret: !!secretStore().find(a) } }
+				: null,
+			undefined, undefined, false
+		)
 	},
 	defaultValue: ''
 };
 
-module.exports = { AccountIdBond };
+class SignerBond extends AccountIdBond {
+	constructor () { super() }
+}
+
+SignerBond.defaultProps = {
+	placeholder: 'Name or address',
+	validator: a => {
+		let y = secretStore().find(a);
+		if (y) {
+			return { external: y.account, internal: a, ok: true };
+		}
+		return runtime.balances.ss58Decode(a).map(
+			x => x && secretStore().find(x)
+				? { external: x, internal: a, ok: true }
+				: null,
+			undefined, undefined, false
+		)
+	},
+	defaultValue: ''
+};
+
+module.exports = { AccountIdBond, SignerBond };
