@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --mode development --watch",
-    "build": "webpack --mode production --watch"
+    "dev": "npm-run-all --parallel webpack-dev server",
+    "build": "npm-run-all --parallel webpack-prod server",
+    "webpack-dev": "webpack --mode development --watch --debug",
+    "webpack-prod": "webpack --mode production --watch --debug",
+    "server": "nodemon --watch src/ --verbose --exec ./node_modules/.bin/babel-node server.js --ext jsx,js --presets env,react"
   },
   "babel": {
     "presets": [
@@ -22,10 +25,14 @@
   "author": "Gav Wood",
   "license": "ISC",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
+    "express": "^4.16.3",
+    "nodemon": "^1.18.3",
+    "npm-run-all": "^4.1.3",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.1"
   },
