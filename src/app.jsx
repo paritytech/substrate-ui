@@ -10,6 +10,7 @@ import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
 import {InputBond} from './InputBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
+import {FileUploadBond} from './FileUploadBond.jsx';
 import {StakingStatusLabel} from './StakingStatusLabel';
 import {WalletList, SecretItem} from './WalletList';
 import {AddressBookList} from './AddressBookList';
@@ -37,6 +38,7 @@ export class App extends ReactiveComponent {
 		this.seed = new Bond;
 		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
 		this.seedAccount.use()
+		this.runtime = new Bond;
 	}
 
 	readyRender() {
@@ -191,11 +193,31 @@ export class App extends ReactiveComponent {
 					icon='send'
 					tx={{
 						sender: runtime.balances.tryIndex(this.source),
-						call: calls.balances.transfer(this.destination, this.amount),
-						compact: false
+						call: calls.balances.transfer(this.destination, this.amount)
 					}}
 				/>
+			</Segment>
+			<Divider hidden />
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='search' />
+					<Header.Content>
+						Runtime Upgrade
+						<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
+					</Header.Content>
+					<div style={{paddingBottom: '1em'}}></div>
+					<FileUploadBond bond={this.runtime} content='Select Runtime' />
+					<TransactButton
+						content="Upgrade"
+						icon='warning'
+						tx={{
+							sender: runtime.upgrade_key.key,
+							call: calls.upgrade_key.upgrade(this.runtime)
+						}}
+					/>
+				</Header>
 			</Segment>
 		</div>);
 	}
 }
+

@@ -53,6 +53,7 @@
     "style-loader": "^0.20.3",
     "tweetnacl": "^1.0.0",
     "url-loader": "^1.0.1",
+    "uuid": "^3.3.2",
     "xxhashjs": "^0.2.2"
   }
 }
