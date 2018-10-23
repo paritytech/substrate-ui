@@ -51,8 +51,8 @@ export class App extends ReactiveComponent {
 					<Pretty className="value" value={system.chain}/>
 				</Label.Detail></Label>
 				<Label>Runtime <Label.Detail>
-					<Pretty className="value" value={runtime.version.spec_name}/> v<Pretty className="value" value={runtime.version.spec_version}/> (
-						<Pretty className="value" value={runtime.version.impl_name}/> v<Pretty className="value" value={runtime.version.impl_version}/>
+					<Pretty className="value" value={runtime.version.specName}/> v<Pretty className="value" value={runtime.version.specVersion}/> (
+						<Pretty className="value" value={runtime.version.implName}/> v<Pretty className="value" value={runtime.version.implVersion}/>
 					)
 				</Label.Detail></Label>
 				<Label>Height <Label.Detail>
