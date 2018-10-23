@@ -207,17 +207,17 @@ export class App extends ReactiveComponent {
 						Runtime Upgrade
 						<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
 					</Header.Content>
-					<div style={{paddingBottom: '1em'}}></div>
-					<FileUploadBond bond={this.runtime} content='Select Runtime' />
-					<TransactButton
-						content="Upgrade"
-						icon='warning'
-						tx={{
-							sender: runtime.upgrade_key.key,
-							call: calls.upgrade_key.upgrade(this.runtime)
-						}}
-					/>
 				</Header>
+				<div style={{paddingBottom: '1em'}}></div>
+				<FileUploadBond bond={this.runtime} content='Select Runtime' />
+				<TransactButton
+					content="Upgrade"
+					icon='warning'
+					tx={{
+						sender: runtime.upgrade_key.key,
+						call: calls.upgrade_key.upgrade(this.runtime)
+					}}
+				/>
 			</Segment>
 		</div>);
 	}
