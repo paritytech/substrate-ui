@@ -45,13 +45,15 @@ export class App extends ReactiveComponent {
 		return (<div>
 			<div>
 				<Label>Name <Label.Detail>
-					<Pretty className="value" value={system.name}/>
+					<Pretty className="value" value={system.name}/> v<Pretty className="value" value={system.version}/>
 				</Label.Detail></Label>
 				<Label>Chain <Label.Detail>
 					<Pretty className="value" value={system.chain}/>
 				</Label.Detail></Label>
-				<Label>Version <Label.Detail>
-					<Pretty className="value" value={system.version}/>
+				<Label>Runtime <Label.Detail>
+					<Pretty className="value" value={runtime.version.spec_name}/> v<Pretty className="value" value={runtime.version.spec_version}/> (
+						<Pretty className="value" value={runtime.version.impl_name}/> v<Pretty className="value" value={runtime.version.impl_version}/>
+					)
 				</Label.Detail></Label>
 				<Label>Height <Label.Detail>
 					<Pretty className="value" value={chain.height}/>
