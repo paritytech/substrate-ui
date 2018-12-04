@@ -10,8 +10,9 @@ import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
 import {InputBond} from './InputBond.jsx';
 import {TransactButton} from './TransactButton.jsx';
+import {FileUploadBond} from './FileUploadBond.jsx';
 import {StakingStatusLabel} from './StakingStatusLabel';
-import {WalletList} from './WalletList';
+import {WalletList, SecretItem} from './WalletList';
 import {AddressBookList} from './AddressBookList';
 import {TransformBondButton} from './TransformBondButton';
 import {Pretty} from './Pretty';
@@ -31,27 +32,28 @@ export class App extends ReactiveComponent {
 		this.source = new Bond;
 		this.amount = new Bond;
 		this.destination = new Bond;
-		this.staker = new Bond;
-		this.nomination = new Bond;
 		this.nick = new Bond;
 		this.lookup = new Bond;
 		this.name = new Bond;
 		this.seed = new Bond;
 		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
 		this.seedAccount.use()
+		this.runtime = new Bond;
 	}
 
 	readyRender() {
 		return (<div>
 			<div>
 				<Label>Name <Label.Detail>
-					<Pretty className="value" value={system.name}/>
+					<Pretty className="value" value={system.name}/> v<Pretty className="value" value={system.version}/>
 				</Label.Detail></Label>
 				<Label>Chain <Label.Detail>
 					<Pretty className="value" value={system.chain}/>
 				</Label.Detail></Label>
-				<Label>Version <Label.Detail>
-					<Pretty className="value" value={system.version}/>
+				<Label>Runtime <Label.Detail>
+					<Pretty className="value" value={runtime.version.specName}/> v<Pretty className="value" value={runtime.version.specVersion}/> (
+						<Pretty className="value" value={runtime.version.implName}/> v<Pretty className="value" value={runtime.version.implVersion}/>
+					)
 				</Label.Detail></Label>
 				<Label>Height <Label.Detail>
 					<Pretty className="value" value={chain.height}/>
@@ -123,14 +125,6 @@ export class App extends ReactiveComponent {
 								<Pretty value={runtime.system.accountNonce(this.lookup)}/>
 							</Label.Detail>
 						</Label>
-						<StakingStatusLabel id={this.lookup}/>
-						<If condition={runtime.balances.tryIndex(this.lookup, null).map(x => x !== null)} then={
-							<Label>Short-form
-								<Label.Detail>
-									<Rspan>{runtime.balances.tryIndex(this.lookup).map(ss58Encode)}</Rspan>
-								</Label.Detail>
-							</Label>
-						}/>
 						<Label>Address
 							<Label.Detail>
 								<Pretty value={this.lookup}/>
@@ -201,154 +195,31 @@ export class App extends ReactiveComponent {
 					icon='send'
 					tx={{
 						sender: runtime.balances.tryIndex(this.source),
-						call: calls.balances.transfer(runtime.balances.tryIndex(this.destination), this.amount)
+						call: calls.balances.transfer(this.destination, this.amount)
 					}}
 				/>
 			</Segment>
 			<Divider hidden />
 			<Segment style={{margin: '1em'}} padded>
 				<Header as='h2'>
-					<Icon name='certificate' />
+					<Icon name='search' />
 					<Header.Content>
-						Stake and Nominate
-						<Header.Subheader>Lock your funds and register your validator node or nominate another</Header.Subheader>
+						Runtime Upgrade
+						<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
 					</Header.Content>
 				</Header>
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>staking account</div>
-					<SignerBond bond={this.staker}/>
-					<If condition={this.staker.ready()} then={<span>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.staker)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.staker)}/>
-							</Label.Detail>
-						</Label>
-						<StakingStatusLabel id={this.staker}/>
-					</span>}/>
-				</div>
-
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>nominated account</div>
-					<AccountIdBond bond={this.nomination}/>
-					<If condition={this.nomination.ready()} then={<span>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.nomination)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.nomination)}/>
-							</Label.Detail>
-						</Label>
-						<StakingStatusLabel id={this.nomination}/>
-					</span>}/>
-				</div>
-					
-				<div style={{paddingBottom: '1em'}}>
-					<TransactButton
-						content="Stake"
-						icon="sign in"
-						tx={{
-							sender: runtime.balances.tryIndex(this.staker),
-							call: calls.staking.stake()
-						}}
-						positive
-						enabled={runtime.staking.intentionIndexOf(this.staker).map(i => i === -1).default(false)}
-					/>
-					<TransactButton
-						content="Unstake"
-						icon="sign out"
-						tx={{
-							sender: runtime.balances.tryIndex(this.staker),
-							call: calls.staking.unstake(runtime.staking.intentionIndexOf(this.staker))
-						}}
-						negative
-						enabled={runtime.staking.intentionIndexOf(this.staker).map(i => i !== -1).default(false)}
-					/>
-					<TransactButton
-						content="Nominate"
-						icon="hand point right"
-						tx={{
-							sender: runtime.balances.tryIndex(this.staker),
-							call: calls.staking.nominate(runtime.balances.tryIndex(this.nomination))
-						}}
-						positive
-						enabled={runtime.staking.nominationIndex(this.nomination, this.staker).map(i => i === -1).default(false)}
-					/>
-					<TransactButton
-						content="Unnominate"
-						icon="thumbs down"
-						tx={{
-							sender: runtime.balances.tryIndex(this.staker),
-							call: calls.staking.unnominate(runtime.staking.nominationIndex(this.staker))
-						}}
-						negative
-						enabled={runtime.staking.nominationIndex(this.staker).map(i => i !== -1).default(false)}
-					/>
-				</div>
+				<div style={{paddingBottom: '1em'}}></div>
+				<FileUploadBond bond={this.runtime} content='Select Runtime' />
+				<TransactButton
+					content="Upgrade"
+					icon='warning'
+					tx={{
+						sender: runtime.upgrade_key.key,
+						call: calls.upgrade_key.upgrade(this.runtime)
+					}}
+				/>
 			</Segment>
 		</div>);
 	}
 }
 
-
-
-/*		this.validators = polkadot.session.validators
-			.map(v => v.map(who => ({
-				who,
-				ownBalance: polkadot.staking.votingBalance(who),
-				otherBalance: polkadot.staking.currentNominatedBalance(who),
-				nominators: polkadot.staking.currentNominatorsFor(who)
-			})), 2)
-			.map(v => v
-				.map(i => Object.assign({balance: i.ownBalance.add(i.otherBalance)}, i))
-				.sort((a, b) => b.balance - a.balance)
-			);
-		this.nextThreeUp = polkadot.staking.intentions.map(
-			l => ([polkadot.session.validators, l.map(who => ({
-				who, ownBalance: polkadot.staking.votingBalance(who), otherBalance: polkadot.staking.nominatedBalance(who)
-			}) ) ]), 3
-		).map(([c, l]) => l
-			.map(i => Object.assign({balance: i.ownBalance.add(i.otherBalance)}, i))
-			.sort((a, b) => b.balance - a.balance)
-			.filter(i => !c.some(x => x+'' == i.who+''))
-			.slice(0, 3)
-		);*/
-
-/*
-				<div>Validators: <ValidatorBalances value={this.validators}/></div>
-				<div>Next 3 Up: <Pretty value={this.nextThreeUp}/></div>
-			</div></div>
-			<div>Democracy: <div style={{marginLeft: '1em'}}>
-				<div>Active referenda: <Pretty value={runtime.democracy.active}/></div>
-				<div>Proposed referenda: <Pretty value={runtime.democracy.proposed}/></div>
-				<div>Launch period: <Pretty value={runtime.democracy.launchPeriod}/></div>
-				<div>Minimum deposit: <Pretty value={runtime.democracy.minimumDeposit}/></div>
-				<div>Voting period: <Pretty value={runtime.democracy.votingPeriod}/></div>
-			</div></div>
-			<div>Council: <div style={{marginLeft: '1em'}}>
-				<div>Members: <Pretty value={runtime.council.active}/></div>
-				<div>Candidates: <Pretty value={runtime.council.candidates}/></div>
-				<div>Candidacy bond: <Pretty value={runtime.council.candidacyBond}/></div>
-				<div>Voting bond: <Pretty value={runtime.council.votingBond}/></div>
-				<div>Present slash per voter: <Pretty value={runtime.council.presentSlashPerVoter}/></div>
-				<div>Carry count: <Pretty value={runtime.council.carryCount}/></div>
-				<div>Presentation duration: <Pretty value={runtime.council.presentationDuration}/></div>
-				<div>Inactive grace period: <Pretty value={runtime.council.inactiveGracePeriod}/></div>
-				<div>Voting period: <Pretty value={runtime.council.votingPeriod}/></div>
-				<div>Term duration: <Pretty value={runtime.council.termDuration}/></div>
-				<div>Desired seats: <Pretty value={runtime.council.desiredSeats}/></div>
-			</div></div>
-			<div>Council Voting: <div style={{marginLeft: '1em'}}>
-				<div>Voting Period: <Pretty value={runtime.councilVoting.votingPeriod}/></div>
-				<div>Cooloff Period: <Pretty value={runtime.councilVoting.cooloffPeriod}/></div>
-				<div>Proposals: <Pretty value={runtime.councilVoting.proposals}/></div>
-
-
-*/
