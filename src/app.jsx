@@ -39,7 +39,6 @@ export class App extends ReactiveComponent {
 		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
 		this.seedAccount.use()
 		this.runtime = new Bond;
-		this.player = new Bond;
 	}
 
 	readyRender() {
@@ -219,40 +218,6 @@ export class App extends ReactiveComponent {
 						call: calls.upgrade_key.upgrade(this.runtime)
 					}}
 				/>
-			</Segment>
-			<Divider hidden />
-			<Segment style={{margin: '1em'}} padded>
-				<Header as='h2'>
-					<Icon name='game' />
-					<Header.Content>
-						Play the Game
-						<Header.Subheader>Play the game here!</Header.Subheader>
-					</Header.Content>
-				</Header>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>player</div>
-					<AccountIdBond bond={this.player}/>
-					<If condition={this.player.ready()} then={
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.player)}/>
-							</Label.Detail>
-						</Label>
-					}/>
-				</div>
-				<TransactButton
-					content="Play"
-					icon='game'
-					tx={{
-						sender: this.player,
-						call: calls.demo.play()
-					}}
-				/>
-						<Label>Pot Balance
-							<Label.Detail>
-								<Pretty value={runtime.demo.pot}/>
-							</Label.Detail>
-						</Label>
 			</Segment>
 		</div>);
 	}
