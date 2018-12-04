@@ -45,13 +45,15 @@ export class App extends ReactiveComponent {
 		return (<div>
 			<div>
 				<Label>Name <Label.Detail>
-					<Pretty className="value" value={system.name}/>
+					<Pretty className="value" value={system.name}/> v<Pretty className="value" value={system.version}/>
 				</Label.Detail></Label>
 				<Label>Chain <Label.Detail>
 					<Pretty className="value" value={system.chain}/>
 				</Label.Detail></Label>
-				<Label>Version <Label.Detail>
-					<Pretty className="value" value={system.version}/>
+				<Label>Runtime <Label.Detail>
+					<Pretty className="value" value={runtime.version.specName}/> v<Pretty className="value" value={runtime.version.specVersion}/> (
+						<Pretty className="value" value={runtime.version.implName}/> v<Pretty className="value" value={runtime.version.implVersion}/>
+					)
 				</Label.Detail></Label>
 				<Label>Height <Label.Detail>
 					<Pretty className="value" value={chain.height}/>
@@ -205,17 +207,17 @@ export class App extends ReactiveComponent {
 						Runtime Upgrade
 						<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
 					</Header.Content>
-					<div style={{paddingBottom: '1em'}}></div>
-					<FileUploadBond bond={this.runtime} content='Select Runtime' />
-					<TransactButton
-						content="Upgrade"
-						icon='warning'
-						tx={{
-							sender: runtime.upgrade_key.key,
-							call: calls.upgrade_key.upgrade(this.runtime)
-						}}
-					/>
 				</Header>
+				<div style={{paddingBottom: '1em'}}></div>
+				<FileUploadBond bond={this.runtime} content='Select Runtime' />
+				<TransactButton
+					content="Upgrade"
+					icon='warning'
+					tx={{
+						sender: runtime.upgrade_key.key,
+						call: calls.upgrade_key.upgrade(this.runtime)
+					}}
+				/>
 			</Segment>
 		</div>);
 	}
