@@ -3888,22 +3888,6 @@ oo7-react@^0.8.3, oo7-react@^0.8.5:
     oo7 "^0.7.4"
     react "^16.5.2"
 
-oo7-substrate@^0.3.12:
-  version "0.3.14"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.14.tgz#33f91af3df6786577a01f7649af9ee5bc36b523b"
-  integrity sha512-jsnHhL0OwnP2qYJLk5KuPNu2BFBGXeE35NEFbAlPxltB8H3XN9rLpHf18gESUaRE95OQMY9LIMuPgugh6fr+1w==
-  dependencies:
-    base-x "^3.0.4"
-    bip39 "^2.5.0"
-    blakejs "^1.1.0"
-    bs58 "^4.0.1"
-    change-case "^3.0.2"
-    isomorphic-fetch "^2.2.1"
-    oo7 "^0.7.5"
-    ss58 "^1.0.2"
-    tweetnacl "^1.0.0"
-    xxhashjs "^0.2.2"
-
 oo7-substrate@^0.3.13:
   version "0.3.13"
   resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.13.tgz#673bb08c03021e7bc5f0e97bf64f5b60d4e4915b"
@@ -3916,6 +3900,22 @@ oo7-substrate@^0.3.13:
     change-case "^3.0.2"
     isomorphic-fetch "^2.2.1"
     oo7 "^0.7.4"
+    ss58 "^1.0.2"
+    tweetnacl "^1.0.0"
+    xxhashjs "^0.2.2"
+
+oo7-substrate@^0.3.14:
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.15.tgz#6e062159520d3d10bc048e96b6ce3a2ead046643"
+  integrity sha512-Ct3pRiD7Zk0RDVelGGBbk127XLvLI60ppRDxDg6Q/vPug9RBL1ZeV1F6Aa5VSPWmDxx6zbopvNmNQr80Ui/bYA==
+  dependencies:
+    base-x "^3.0.4"
+    bip39 "^2.5.0"
+    blakejs "^1.1.0"
+    bs58 "^4.0.1"
+    change-case "^3.0.2"
+    isomorphic-fetch "^2.2.1"
+    oo7 "^0.7.5"
     ss58 "^1.0.2"
     tweetnacl "^1.0.0"
     xxhashjs "^0.2.2"
