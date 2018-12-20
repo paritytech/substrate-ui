@@ -3601,7 +3601,12 @@ ms@^2.1.1:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.1.tgz#30a5864eb3ebb0a66f2ebe6d727af06a09d86e0a"
   integrity sha512-tgp+dl5cGk28utYktBsrFqA7HKgrhgPsg6Z/EfhWI4gl1Hwq8B/GmY/0oXZ6nF8hDVesS/FpnYaD/kOWhYQvyg==
 
-nan@^2.4.0, nan@^2.9.2:
+nan@^2.4.0:
+  version "2.12.1"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.12.1.tgz#7b1aa193e9aa86057e3c7bbd0ac448e770925552"
+  integrity sha512-JY7V6lRkStKcKTvHO5NVSQRv+RV+FIL5pvDoLiAtSL9pKlC5x9PKQcZDsq7m4FO4d57mkhC6Z+QhAh3Jdk5JFw==
+
+nan@^2.9.2:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
   integrity sha512-iji6k87OSXa0CcrLl9z+ZiYSuR2o+c0bGuNmXdrhTQTakxytAFsC56SArGYoiHlJlFoHSnvmhpceZJaXkVuOtA==
@@ -3880,7 +3885,7 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
   dependencies:
     wrappy "1"
 
-oo7-react@^0.8.3, oo7-react@^0.8.5:
+oo7-react@^0.8.3:
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/oo7-react/-/oo7-react-0.8.5.tgz#77dd7d124c5a1c5a8ada4b4e7d7eb7e139df8315"
   integrity sha512-ASUO45A/uM6R+QcvmYnfh07exTVx0B+LyKnlSdpR1K8Y5uV+7ux63d5lHIj7BoJCgAf3AiH4BhvJDOupNCUAJQ==
@@ -3888,23 +3893,15 @@ oo7-react@^0.8.3, oo7-react@^0.8.5:
     oo7 "^0.7.4"
     react "^16.5.2"
 
-oo7-substrate@^0.3.13:
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.13.tgz#673bb08c03021e7bc5f0e97bf64f5b60d4e4915b"
-  integrity sha512-TTQdfbb4KhEeC7/ZSF8HITjcn6vJenprZZIfj3eqF/hDIaHUYvkn5W60tWqtL3wWpogGgpB7gFeiIliZJ/EV/Q==
+oo7-react@^0.8.6:
+  version "0.8.6"
+  resolved "https://registry.yarnpkg.com/oo7-react/-/oo7-react-0.8.6.tgz#3fe26ccab961ed1d4e7572ec0239048984f74019"
+  integrity sha512-CirUJOurZM/cyx7CvSwi1Fi5f3rvT+PaF/P4f7OV6ceu5u65usdI/WTVajNxYbOt+6BhlJS6DEyWFi5cY5XxJA==
   dependencies:
-    base-x "^3.0.4"
-    bip39 "^2.5.0"
-    blakejs "^1.1.0"
-    bs58 "^4.0.1"
-    change-case "^3.0.2"
-    isomorphic-fetch "^2.2.1"
-    oo7 "^0.7.4"
-    ss58 "^1.0.2"
-    tweetnacl "^1.0.0"
-    xxhashjs "^0.2.2"
+    oo7 "^0.7.5"
+    react "^16.5.2"
 
-oo7-substrate@^0.3.14:
+oo7-substrate@^0.3.14, oo7-substrate@^0.3.15:
   version "0.3.15"
   resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.15.tgz#6e062159520d3d10bc048e96b6ce3a2ead046643"
   integrity sha512-Ct3pRiD7Zk0RDVelGGBbk127XLvLI60ppRDxDg6Q/vPug9RBL1ZeV1F6Aa5VSPWmDxx6zbopvNmNQr80Ui/bYA==
@@ -4187,14 +4184,14 @@ pkg-dir@^3.0.0:
     find-up "^3.0.0"
 
 polkadot-identicon@^1.1.13:
-  version "1.1.14"
-  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.14.tgz#86ad9fea010bbd4b696b9e794faecede476842d7"
-  integrity sha512-vR6T2rMAFhuJME+qDiba0f9khDmSQnJgdEkIZQ+yNE4OrIwV7WyFaonRi/zJvzMgZ7rg/a4z1Ep+ZiVUbIHLAQ==
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.16.tgz#e47595fee079336fb6ca3890838ffe766f31afc5"
+  integrity sha512-uFuRI9YMGkTG93k6nL2OrPAiclGgObASlLzPjUANckc3DvFkFntexhGpX2h5mSfxC024j4gSY5614MZe0MboMA==
   dependencies:
     blake2js "^1.0.0"
-    oo7 "^0.7.4"
-    oo7-react "^0.8.5"
-    oo7-substrate "^0.3.13"
+    oo7 "^0.7.5"
+    oo7-react "^0.8.6"
+    oo7-substrate "^0.3.15"
     react "^16.4.2"
     ss58 "^1.0.0"
 
@@ -4689,7 +4686,7 @@ react-dom@^16.3.2:
     prop-types "^15.6.2"
     scheduler "^0.11.2"
 
-react@^16.3.2, react@^16.4.2, react@^16.5.2:
+react@^16.3.2:
   version "16.6.3"
   resolved "https://registry.yarnpkg.com/react/-/react-16.6.3.tgz#25d77c91911d6bbdd23db41e70fb094cc1e0871c"
   integrity sha512-zCvmH2vbEolgKxtqXL2wmGCUxUyNheYn/C+PD1YAjfxHC54+MhdruyhO7QieQrYsYeTxrn93PM2y0jRH1zEExw==
@@ -4698,6 +4695,16 @@ react@^16.3.2, react@^16.4.2, react@^16.5.2:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.11.2"
+
+react@^16.4.2, react@^16.5.2:
+  version "16.7.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.7.0.tgz#b674ec396b0a5715873b350446f7ea0802ab6381"
+  integrity sha512-StCz3QY8lxTb5cl2HJxjwLFOXPIFQp+p+hxQfc8WE0QiLfCtIlKj8/+5tjjKm8uSTlAW+fCPaavGFS06V9Ar3A==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+    scheduler "^0.12.0"
 
 read-pkg@^3.0.0:
   version "3.0.0"
@@ -4929,9 +4936,17 @@ sax@^1.2.4, sax@~1.2.1:
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
 scheduler@^0.11.2:
-  version "0.11.2"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.11.2.tgz#a8db5399d06eba5abac51b705b7151d2319d33d3"
-  integrity sha512-+WCP3s3wOaW4S7C1tl3TEXp4l9lJn0ZK8G3W3WKRWmw77Z2cIFUW2MiNTMHn5sCjxN+t7N43HAOOgMjyAg5hlg==
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.11.3.tgz#b5769b90cf8b1464f3f3cfcafe8e3cd7555a2d6b"
+  integrity sha512-i9X9VRRVZDd3xZw10NY5Z2cVMbdYg6gqFecfj79USv1CFN+YrJ3gIPRKf1qlY+Sxly4djoKdfx1T+m9dnRB8kQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.12.0.tgz#8ab17699939c0aedc5a196a657743c496538647b"
+  integrity sha512-t7MBR28Akcp4Jm+QoR63XgAi9YgCUmgvDHqf5otgAj4QvdoBE4ImCX0ffehefePPG+aitiYHp0g/mW6s4Tp+dw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
