@@ -3901,10 +3901,10 @@ oo7-react@^0.8.6:
     oo7 "^0.7.5"
     react "^16.5.2"
 
-oo7-substrate@^0.3.14, oo7-substrate@^0.3.15:
-  version "0.3.15"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.15.tgz#6e062159520d3d10bc048e96b6ce3a2ead046643"
-  integrity sha512-Ct3pRiD7Zk0RDVelGGBbk127XLvLI60ppRDxDg6Q/vPug9RBL1ZeV1F6Aa5VSPWmDxx6zbopvNmNQr80Ui/bYA==
+oo7-substrate@^0.3.16:
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.16.tgz#f970dc35a11d84d80539ee93eef4ab5013c70852"
+  integrity sha512-hoWjROw9PnLOCOwccazTxp5dfYFIqzEnwFbsZg7uIpHynOblkNtyTFeAskY+ECeh8RHcfZGRM6ox+UctqqmYXg==
   dependencies:
     base-x "^3.0.4"
     bip39 "^2.5.0"
@@ -4183,15 +4183,15 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-polkadot-identicon@^1.1.13:
-  version "1.1.16"
-  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.16.tgz#e47595fee079336fb6ca3890838ffe766f31afc5"
-  integrity sha512-uFuRI9YMGkTG93k6nL2OrPAiclGgObASlLzPjUANckc3DvFkFntexhGpX2h5mSfxC024j4gSY5614MZe0MboMA==
+polkadot-identicon@^1.1.15:
+  version "1.1.17"
+  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.17.tgz#4af1eab38c104492c07ef4d5e4b7001381a4a9f2"
+  integrity sha512-+fMlUFbuglRF2LJwwRn4W9+nPe7LY5JxiWj9FYVNdzUH0UPFYWiZvRN134/T78EaBxGpbhoZY5p7HW9WvWdpNg==
   dependencies:
     blake2js "^1.0.0"
     oo7 "^0.7.5"
     oo7-react "^0.8.6"
-    oo7-substrate "^0.3.15"
+    oo7-substrate "^0.3.16"
     react "^16.4.2"
     ss58 "^1.0.0"
 
