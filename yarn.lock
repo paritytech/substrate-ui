@@ -3880,18 +3880,18 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
   dependencies:
     wrappy "1"
 
-oo7-react@^0.8.2:
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/oo7-react/-/oo7-react-0.8.2.tgz#b309debef2776f9d861f79619796b741c420b9ad"
-  integrity sha512-S9+SgJr8ke56QL84iP0Up9Sd1CFE2OiV8VZ7VN5gGzKMPtBamdMZBoCXC6ODTv1R0k+zhHVX01A6rZQG6I4NyA==
+oo7-react@^0.8.3, oo7-react@^0.8.5:
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/oo7-react/-/oo7-react-0.8.5.tgz#77dd7d124c5a1c5a8ada4b4e7d7eb7e139df8315"
+  integrity sha512-ASUO45A/uM6R+QcvmYnfh07exTVx0B+LyKnlSdpR1K8Y5uV+7ux63d5lHIj7BoJCgAf3AiH4BhvJDOupNCUAJQ==
   dependencies:
-    oo7 "^0.7.2"
+    oo7 "^0.7.4"
     react "^16.5.2"
 
-oo7-substrate@^0.3.9:
-  version "0.3.9"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.9.tgz#6bf8a563b4c5ce94794d8fe0b8e1009c2e34aa56"
-  integrity sha512-cpZHqA39WXSI2msJH1NhVM/8wXvUq6IPCHjWYhbeUI4/nmiHzbZp5qSXxcNNDG4xBC230uWamopoMceWk9c4uw==
+oo7-substrate@^0.3.12, oo7-substrate@^0.3.13:
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.13.tgz#673bb08c03021e7bc5f0e97bf64f5b60d4e4915b"
+  integrity sha512-TTQdfbb4KhEeC7/ZSF8HITjcn6vJenprZZIfj3eqF/hDIaHUYvkn5W60tWqtL3wWpogGgpB7gFeiIliZJ/EV/Q==
   dependencies:
     base-x "^3.0.4"
     bip39 "^2.5.0"
@@ -3899,15 +3899,15 @@ oo7-substrate@^0.3.9:
     bs58 "^4.0.1"
     change-case "^3.0.2"
     isomorphic-fetch "^2.2.1"
-    oo7 "^0.7.2"
+    oo7 "^0.7.4"
     ss58 "^1.0.2"
     tweetnacl "^1.0.0"
     xxhashjs "^0.2.2"
 
-oo7@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.2.tgz#e776312724e46ad048467b39adf31cdb374c32ff"
-  integrity sha512-MWDYjwR5P9MLeosdNScXTsxnTK/lsk8uiCur6EVPuka0Dj441vRkvg8XfVwhgGaLDXG3V2v3wtW6InMPyt/bKw==
+oo7@^0.7.3, oo7@^0.7.4:
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.4.tgz#66be9894582f1bd403fede4d21578fc41aaaad84"
+  integrity sha512-l+we1rGPxQJQa25bf4i1nABCdjw3tcgBhF3hyl2UVb0S42gZTbtBaZ6Z0jkIyG+N9MpkhNm9HkHbeUFmp2dXpQ==
 
 os-browserify@^0.3.0:
   version "0.3.0"
@@ -4165,15 +4165,15 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-polkadot-identicon@^1.1.11:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.11.tgz#8eedf76520562428aa6c7cf14a58331d5bac55eb"
-  integrity sha512-lM17xWD3jmOLlBl1+kab2PZHeKN7434ZTobsUeLLyyMZ68rMG7kDkFzstHnn+XJZiRD1HAzxR83HOA3cHW2vFg==
+polkadot-identicon@^1.1.13:
+  version "1.1.14"
+  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.14.tgz#86ad9fea010bbd4b696b9e794faecede476842d7"
+  integrity sha512-vR6T2rMAFhuJME+qDiba0f9khDmSQnJgdEkIZQ+yNE4OrIwV7WyFaonRi/zJvzMgZ7rg/a4z1Ep+ZiVUbIHLAQ==
   dependencies:
     blake2js "^1.0.0"
-    oo7 "^0.7.2"
-    oo7-react "^0.8.2"
-    oo7-substrate "^0.3.9"
+    oo7 "^0.7.4"
+    oo7-react "^0.8.5"
+    oo7-substrate "^0.3.13"
     react "^16.4.2"
     ss58 "^1.0.0"
 
