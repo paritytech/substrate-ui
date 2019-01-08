@@ -27,6 +27,7 @@ export class App extends ReactiveComponent {
 		window.addressBook = addressBook;
 		window.chain = chain;
 		window.calls = calls;
+		window.system = system;
 		window.that = this;
 		window.metadata = metadata;
 

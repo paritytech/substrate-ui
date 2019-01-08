@@ -1,17 +1,8 @@
 const { setNetworkDefault, denominationInfo: { init } } = require('oo7-substrate')
-/*
-init({
-	denominations: {
-		bbq: 15,
-	},
-	primary: 'bbq',
-	unit: 'birch',
-	ticker: 'BBQ'
-})
-*/
+
 setNetworkDefault(42)
 
-/*const denominationInfoDOT = {
+const denominationInfoDOT = {
 	denominations: {
 		dot: 15,
 		point: 12,
@@ -20,4 +11,24 @@ setNetworkDefault(42)
 	primary: 'dot',
 	unit: 'planck',
 	ticker: 'DOT'
-}*/
+}
+
+const denominationInfoCHR = {
+	denominations: {
+		chr: 15,
+	},
+	primary: 'chr',
+	unit: 'cherry',
+	ticker: 'CHR'
+}
+
+setTimeout(() => {
+	const { system } = require('oo7-substrate')
+	system.chain.tie(name => {
+		switch (name) {
+			case 'Alexander': { init(denominationInfoDOT); break; }
+			case 'Charred Cherry': { init(denominationInfoCHR); break; }
+		}
+	}),
+	0
+})
