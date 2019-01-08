@@ -244,7 +244,7 @@ export class App extends ReactiveComponent {
 						icon='warning'
 						tx={{
 							sender: runtime.sudo ? runtime.sudo.key : null,
-							call: calls.sudo.sudo(calls.parachains.registerParachain(this.parachainId, this.parachainBinary, this.parachainHead.map(hexToBytes)))
+							call: calls.sudo ? calls.sudo.sudo(calls.parachains.registerParachain(this.parachainId, this.parachainBinary, this.parachainHead.map(hexToBytes))) : null
 						}}
 					/>
 				</Segment>
