@@ -3964,7 +3964,23 @@ oo7-react@^0.8.3, oo7-react@^0.8.7:
     oo7 "^0.7.6"
     react "^16.5.2"
 
-oo7-substrate@^0.3.16, oo7-substrate@^0.3.18:
+oo7-substrate@^0.3.16:
+  version "0.3.19"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.19.tgz#1961ffda00fc81aeb933008482ae000d1a58a589"
+  integrity sha512-BJZ8DWvxWgkUoPdu7SiqqrROGh89o9LNCekqQVPnTb8kt9TlZLV7MTBmdANHHQYBPzO4No4ibnyRZIx+rafPZg==
+  dependencies:
+    base-x "^3.0.4"
+    bip39 "^2.5.0"
+    blakejs "^1.1.0"
+    bs58 "^4.0.1"
+    change-case "^3.0.2"
+    isomorphic-fetch "^2.2.1"
+    oo7 "^0.7.6"
+    ss58 "^1.0.2"
+    tweetnacl "^1.0.0"
+    xxhashjs "^0.2.2"
+
+oo7-substrate@^0.3.18:
   version "0.3.18"
   resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.3.18.tgz#4140410ae19a39d683460e887bb6d27d531d4d11"
   integrity sha512-g8RrF3S7+4f8YvdM3FtsW8eQBh7P+Z9h5u5XADPDOn4bGR1kz01IFxUcNPWD3fpgpnQ9orGMH6qLOhaGqVrXmw==
