@@ -67,6 +67,11 @@ export class App extends ReactiveComponent {
 						runtime.core.authorities.mapEach(a => <Identicon key={a} account={a} size={16}/>)
 					}</Rspan>
 				</Label.Detail></Label>
+				<Label>Validators <Label.Detail>
+					<Rspan className="value">{
+						runtime.staking.validators.mapEach(a => <Identicon key={a.who} account={a.who} className={a.invulnerable ? 'invulnerable' : ''} size={16}/>)
+					}</Rspan>
+				</Label.Detail></Label>
 			</div>
 			<Segment style={{margin: '1em'}}>
 				<Header as='h2'>
