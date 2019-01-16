@@ -39,7 +39,7 @@ AccountIdBond.defaultProps = {
 		if (z) {
 			return { external: z.account, internal: a, ok: true, extra: { knowSecret: false } };
 		}
-		return runtime.balances.ss58Decode(a).map(
+		return runtime.indices.ss58Decode(a).map(
 			x => x
 				? { external: x, internal: a, ok: true, extra: { knowSecret: !!secretStore().find(a) } }
 				: null,
@@ -60,7 +60,7 @@ SignerBond.defaultProps = {
 		if (y) {
 			return { external: y.account, internal: a, ok: true };
 		}
-		return runtime.balances.ss58Decode(a).map(
+		return runtime.indices.ss58Decode(a).map(
 			x => x && secretStore().find(x)
 				? { external: x, internal: a, ok: true }
 				: null,

@@ -57,7 +57,7 @@ export class WalletList extends ReactiveComponent {
 			secretStore: secretStore(),
 			shortForm: secretStore().map(ss => {
 				let r = {}
-				ss.keys.forEach(key => r[key.name] = runtime.balances.ss58Encode(runtime.balances.tryIndex(key.account)))
+				ss.keys.forEach(key => r[key.name] = runtime.indices.ss58Encode(runtime.indices.tryIndex(key.account)))
 				return r
 			})
 		})
