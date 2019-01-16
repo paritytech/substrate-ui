@@ -10,7 +10,7 @@ export class AddressBookList extends ReactiveComponent {
 			addressBook: addressBook(),
 			shortForm: addressBook().map(ss => {
 				let r = {}
-				ss.accounts.forEach(account => r[account.name] = runtime.balances.ss58Encode(runtime.balances.tryIndex(account.account)))
+				ss.accounts.forEach(account => r[account.name] = runtime.indices.ss58Encode(runtime.indices.tryIndex(account.account)))
 				return r
 			})
 		})

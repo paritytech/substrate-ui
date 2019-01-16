@@ -194,7 +194,7 @@ export class App extends ReactiveComponent {
 					content="Send"
 					icon='send'
 					tx={{
-						sender: runtime.balances.tryIndex(this.source),
+						sender: runtime.indices.tryIndex(this.source),
 						call: calls.balances.transfer(this.destination, this.amount)
 					}}
 				/>
