@@ -115,7 +115,7 @@ class InputBond extends ReactiveComponent {
 	resetDefaultValueUpdate () {
 		if (this.lastDefaultValueUpdate) {
 //			console.log('kill update');
-			window.clearTimeout(this.lastDefaultValueUpdate);
+			clearTimeout(this.lastDefaultValueUpdate);
 			delete this.lastDefaultValueUpdate;
 		}
 	}
