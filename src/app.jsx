@@ -73,7 +73,7 @@ export class App extends ReactiveComponent {
 					)
 				</Label.Detail></Label>
 				<Label>Height <Label.Detail>
-					<Pretty className="value" value={chain.height}/>
+					<Pretty className="value" value={chain.height}/> (with <Pretty className="value" value={chain.lag}/> lag)
 				</Label.Detail></Label>
 				<Label>Authorities <Label.Detail>
 					<Rspan className="value">{
@@ -84,6 +84,9 @@ export class App extends ReactiveComponent {
 					<Rspan className="value">{
 						runtime.staking.validators.mapEach(a => <Identicon key={a.who} account={a.who} className={a.invulnerable ? 'invulnerable' : ''} size={16}/>)
 					}</Rspan>
+				</Label.Detail></Label>
+				<Label>Total issuance <Label.Detail>
+					<Pretty className="value" value={runtime.balances.totalIssuance}/>
 				</Label.Detail></Label>
 			</div>
 			<Segment style={{margin: '1em'}}>
