@@ -3990,10 +3990,10 @@ oo7-substrate@^0.3.20:
     tweetnacl "^1.0.0"
     xxhashjs "^0.2.2"
 
-oo7-substrate@^0.4.0:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.4.6.tgz#c2654ad48544af6c0b6f00a6b44b7a58714ac24c"
-  integrity sha512-BKhuTuOILACaAaZsqqQLYEjWPdHcKdTQAMgVJl0stGQsBtkGfYOg24Q9t9KgsF0AdIU3mGdIy9410T96Dl7wfA==
+oo7-substrate@^0.4.9:
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.4.10.tgz#c091971568e5538160b2ca2aca1676caa20b18b6"
+  integrity sha512-d50sE7kD4spjGsq8Bg4K5NrDL8ZQrQ5LTOqZObQRBiDLX2KSNMldwTnf9JCBfUv4bZbNAd6Tg2ZQnBKvCfWMRA==
   dependencies:
     base-x "^3.0.4"
     bip39 "^2.5.0"
@@ -4002,7 +4002,7 @@ oo7-substrate@^0.4.0:
     change-case "^3.0.2"
     isomorphic-fetch "^2.2.1"
     isomorphic-ws "^4.0.1"
-    oo7 "^0.7.8"
+    oo7 "^0.7.9"
     ss58 "^1.0.2"
     text-encoding "^0.7.0"
     text-encoding-polyfill "^0.6.7"
@@ -4015,10 +4015,10 @@ oo7@^0.7.3, oo7@^0.7.7:
   resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.7.tgz#c569178b616dc700ab3cb8d685251ed063617126"
   integrity sha512-+sNGi5sIFHpBOhQHpWQB3iwpzFQ9M9bGJtUk2aCeVJVYM0hpez3uklySbOQpJ+kv4PwZ+4eapkq8Vs2lReq5jg==
 
-oo7@^0.7.8:
-  version "0.7.8"
-  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.8.tgz#3140432a4547624ea6b71f3d13244c6a2d9d8f9c"
-  integrity sha512-j3MydpBTjpxeAD7kc08Pnuc90NY9EeW53jXp0c/CwSncS6WCzHg4KY+bZQZtmWwW5ESdAcmR8ZolIIHWWTNusg==
+oo7@^0.7.9:
+  version "0.7.9"
+  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.9.tgz#ea9c14121fd3a24934b12d58b5f2a185a9609059"
+  integrity sha512-QcK4x8xY+rZeBBqS1HDe+kyf0g1XEdiqXcEIJl7dBxau+ICU8bGdcJ+d+POMj8/fRH6o9oyaIe2QujytxzERLg==
 
 os-browserify@^0.3.0:
   version "0.3.0"
