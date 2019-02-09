@@ -3990,10 +3990,10 @@ oo7-substrate@^0.3.20:
     tweetnacl "^1.0.0"
     xxhashjs "^0.2.2"
 
-oo7-substrate@^0.4.9:
-  version "0.4.10"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.4.10.tgz#c091971568e5538160b2ca2aca1676caa20b18b6"
-  integrity sha512-d50sE7kD4spjGsq8Bg4K5NrDL8ZQrQ5LTOqZObQRBiDLX2KSNMldwTnf9JCBfUv4bZbNAd6Tg2ZQnBKvCfWMRA==
+oo7-substrate@^0.4.11:
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.4.12.tgz#f27ffa10b0143e75ba2677ddbebbaf9aa5096078"
+  integrity sha512-oz0UePdDViE8y9oLgWBImwhIRkElcaqHmG9dIAnHd12O1FPWGos1LHeDSKVblXfvtiAs18n2OMe5JJTNBGd6yQ==
   dependencies:
     base-x "^3.0.4"
     bip39 "^2.5.0"

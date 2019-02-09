@@ -323,7 +323,7 @@ export class App extends ReactiveComponent {
 				</div>
 			</Segment>			
 			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.prefix === 'sudo') || m.modules.some(o => o.prefix === 'upgrade_key'))} then={
+			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo') || m.modules.some(o => o.name === 'upgrade_key'))} then={
 				<Segment style={{margin: '1em'}} padded>
 					<Header as='h2'>
 						<Icon name='search' />
@@ -345,7 +345,7 @@ export class App extends ReactiveComponent {
 				</Segment>
 			}/>
 			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.prefix === 'sudo'))} then={
+			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
 				<Segment style={{margin: '1em'}} padded>
 					<Header as='h2'>
 						<Icon name='search' />
@@ -368,7 +368,7 @@ export class App extends ReactiveComponent {
 				</Segment>
 			}/>
 			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.prefix === 'sudo') && m.modules.some(o => o.prefix === 'parachains'))} then={
+			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo') && m.modules.some(o => o.name === 'parachains'))} then={
 				<Segment style={{margin: '1em'}} padded>
 					<Header as='h2'>
 						<Icon name='chain' />
@@ -392,7 +392,7 @@ export class App extends ReactiveComponent {
 				</Segment>
 			}/>
 			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.prefix === 'sudo'))} then={
+			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
 				<Segment style={{margin: '1em'}} padded>
 					<Header as='h2'>
 						<Icon name='chain' />

@@ -10,7 +10,7 @@ require('./denominations')
 //setNodeUri(['ws://127.0.0.1:9944/', 'wss://substrate-rpc.parity.io/'])
 //setNodeUri(['wss://substrate-rpc.parity.io/'])
 //setNodeUri(['wss://poc3-rpc.polkadot.io/'])
-//setNodeUri(['ws://127.0.0.1:9944/'])
-setNodeUri(['ws://127.0.0.1:9955/'])
+setNodeUri(['ws://127.0.0.1:9944/'])
+//setNodeUri(['ws://127.0.0.1:9955/'])
 
 render(<App/>, document.getElementById('app'));
