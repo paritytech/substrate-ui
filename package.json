@@ -44,7 +44,7 @@
     "file-loader": "^3.0.1",
     "oo7": "^0.7.9",
     "oo7-react": "^0.8.10",
-    "oo7-substrate": "^0.4.11",
+    "oo7-substrate": "^0.5.0",
     "polkadot-identicon": "^1.1.32",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
