@@ -1,10 +1,10 @@
 import React from 'react';
 require('semantic-ui-css/semantic.min.css');
-const { generateMnemonic } = require('bip39')
-import {Icon, List, Label, Header, Segment, Divider, Button} from 'semantic-ui-react';
+import {Icon, Accordion, List, Checkbox, Label, Header, Segment, Divider, Button} from 'semantic-ui-react';
 import {Bond, TransformBond} from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
-import {calls, runtime, chain, system, runtimeUp, ss58Encode, addressBook, secretStore, metadata, nodeService} from 'oo7-substrate';
+import {calls, runtime, chain, system, runtimeUp, ss58Decode, ss58Encode, pretty,
+	addressBook, secretStore, metadata, nodeService, bytesToHex, hexToBytes, AccountId} from 'oo7-substrate';
 import Identicon from 'polkadot-identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
@@ -30,389 +30,664 @@ export class App extends ReactiveComponent {
 		window.system = system;
 		window.that = this;
 		window.metadata = metadata;
-
-		this.source = new Bond;
-		this.amount = new Bond;
-		this.destination = new Bond;
-		this.nick = new Bond;
-		this.lookup = new Bond;
-		this.name = new Bond;
-		this.seed = new Bond;
-		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
-		this.seedAccount.use()
-		this.runtime = new Bond;
-		this.parachainBinary = new Bond;
-		this.parachainId = new Bond;
-		this.parachainHead = new Bond;
-		this.storageKey = new Bond;
-		this.storageValue = new Bond;
-		this.validatorCount = new Bond;
-		this.staker = new Bond;
-		this.nomination = new Bond;
 	}
 
 	readyRender() {
 		return (<div>
-			<div>
-				<If
-					condition={nodeService().status.map(x => !!x.connected)}
-					then={<Label>Connected <Label.Detail>
-						<Pretty className="value" value={nodeService().status.sub('connected')}/>
-					</Label.Detail></Label>}
-					else={<Label>Not connected</Label>}
-				/>
-				<Label>Name <Label.Detail>
-					<Pretty className="value" value={system.name}/> v<Pretty className="value" value={system.version}/>
-				</Label.Detail></Label>
-				<Label>Chain <Label.Detail>
-					<Pretty className="value" value={system.chain}/>
-				</Label.Detail></Label>
-				<Label>Runtime <Label.Detail>
-					<Pretty className="value" value={runtime.version.specName}/> v<Pretty className="value" value={runtime.version.specVersion}/> (
-						<Pretty className="value" value={runtime.version.implName}/> v<Pretty className="value" value={runtime.version.implVersion}/>
-					)
-				</Label.Detail></Label>
-				<Label>Height <Label.Detail>
-					<Pretty className="value" value={chain.height}/> (with <Pretty className="value" value={chain.lag}/> lag)
-				</Label.Detail></Label>
-				<Label>Authorities <Label.Detail>
-					<Rspan className="value">{
-						runtime.core.authorities.mapEach(a => <Identicon key={a} account={a} size={16}/>)
-					}</Rspan>
-				</Label.Detail></Label>
-				<Label>Validators <Label.Detail>
-					<Rspan className="value">{
-						runtime.staking.validators.mapEach(a => <Identicon key={a.who} account={a.who} className={a.invulnerable ? 'invulnerable' : ''} size={16}/>)
-					}</Rspan>
-				</Label.Detail></Label>
-				<Label>Total issuance <Label.Detail>
-					<Pretty className="value" value={runtime.balances.totalIssuance}/>
-				</Label.Detail></Label>
-			</div>
-			<Segment style={{margin: '1em'}}>
-				<Header as='h2'>
-					<Icon name='key' />
-					<Header.Content>
-						Wallet
-						<Header.Subheader>Manage your secret keys</Header.Subheader>
-					</Header.Content>
-				</Header>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>seed</div>
-					<InputBond
-						bond={this.seed}
-						reversible
-						placeholder='Some seed for this key'
-						validator={n => n || null}
-						action={<Button content="Another" onClick={() => this.seed.trigger(generateMnemonic())} />}
-						iconPosition='left'
-						icon={<i style={{opacity: 1}} className='icon'><Identicon account={this.seedAccount} size={28} style={{marginTop: '5px'}}/></i>}
-					/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>name</div>
-					<InputBond
-						bond={this.name}
-						placeholder='A name for this key'
-						validator={n => n ? secretStore().map(ss => ss.byName[n] ? null : n) : null}
-						action={<TransformBondButton
-							content='Create'
-							transform={(name, seed) => secretStore().submit(seed, name)}
-							args={[this.name, this.seed]}
-							immediate
-						/>}
-					/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<WalletList/>
-				</div>
-			</Segment>
+			<Heading />
+			<WalletSegment />
 			<Divider hidden />
+			<AddressBookSegment />
+			<Divider hidden />
+			<FundingSegment />
+			<Divider hidden />
+			<StakingSegment />
+			<Divider hidden />
+			<UpgradeSegment />
+			<Divider hidden />
+			<PokeSegment />
+			<Divider hidden />
+			<ParachainSegment />
+			<Divider hidden />
+			<ValidationSegment />
+		</div>);
+	}
+}
+
+class AccountIdsBond extends ReactiveComponent {
+	constructor () {
+		super(['accounts'])
+	}
+	readyRender () {
+		return <AccountIdsBondInner accounts={this.state.accounts} bond={this.props.bond}/>
+	}
+}
+
+class AccountIdsBondInner extends React.Component {
+	constructor () {
+		super()
+		this.state = {selected: {}}
+	}
+	componentDidMount () {
+		if (this.props.bond) {
+			this.tieKey = this.props.bond.tie(v => {
+				let selected = {}
+				v.forEach(k => selected[bytesToHex(k)] = true)
+				this.handleEdit(selected, false)
+			})
+		}
+	}
+	componentWillUnmount () {
+		if (this.props.bond && this.tieKey) {
+			this.props.bond.untie(this.tieKey);
+		}
+	}
+	handleEdit (selected, trigger = true) {
+		this.setState({selected})
+		if (trigger) {
+			this.props.bond.trigger(Object.keys(selected).map(hex => new AccountId(hexToBytes(hex))))
+		}
+	}
+	toggle (hexkey) {
+		let selected = Object.assign({}, this.state.selected)
+		if (selected[hexkey]) {
+			delete selected[hexkey]
+		} else {
+			selected[hexkey] = true
+		}
+		this.handleEdit(selected)
+	}
+	
+	render () {
+		let nice = key => {
+			let known = addressBook().find(key)
+			if (known) {
+				return <span>{known.name}</span>
+			}
+			known = secretStore().find(key)
+			if (known) {
+				return <span>{known.name}</span>
+			}
+			return <Pretty value={runtime.indices.ss58Encode(key)}/>
+		}
+		return <List divided verticalAlign='bottom' style={{padding: '0 0 4px 4px', overflow: 'auto', maxHeight: '20em'}}>{
+			this.props.accounts.map(key => {
+				let hexkey = bytesToHex(key)
+				return <List.Item key={hexkey} onClick={() => this.toggle(hexkey)}>
+					<List.Content floated='right'>
+						<Checkbox toggle checked={!!this.state.selected[hexkey]}/>
+					</List.Content>
+					<span className='ui avatar image' style={{minWidth: '36px'}}>
+						<Identicon account={key} />
+					</span>
+					<List.Content>
+						<List.Header>{nice(key)}<StakingStatusLabel id={key}/></List.Header>
+						<List.Description>{ss58Encode(key)}</List.Description>
+					</List.Content>
+				</List.Item>
+			})
+		}</List>
+	}
+}
+
+class StakingSegment extends React.Component {
+	constructor () {
+		super()
+		this.state = {activeIndex: 0}
+		this.amount = new Bond
+		this.lockAmount = new Bond
+		this.staking = new Bond
+		this.stash = new Bond
+		this.controller = new Bond
+		this.nominations = new Bond
+
+		window.stakingSegment = this
+	}
+
+	render () {
+		if (!this.bonding) {
+			this.bonding = runtime.staking.bonding(this.staking)
+		}
+		let activeIndex = this.state.activeIndex || 0
+		return <Segment style={{margin: '1em'}} padded>
+			<Header as='h2'>
+				<Icon name='certificate' />
+				<Header.Content>
+					Staking
+					<Header.Subheader>Lock and unlock your funds, register to validate or nominate others</Header.Subheader>
+				</Header.Content>
+			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<Accordion styled>
+					<Accordion.Title active={activeIndex == 0} onClick={()=>this.setState({activeIndex: 0})}>
+						<Icon name='dropdown' />
+						Lock
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex == 0}>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>stash (<b>lockup</b>) account</div>
+							<SignerBond bond={this.stash}/>
+							<If condition={this.stash.ready()} then={<span>
+								<Label>Balance available
+									<Label.Detail>
+										<Pretty value={runtime.balances.balance(this.stash)}/>
+									</Label.Detail>
+								</Label>
+								<StakingStatusLabel id={this.stash}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>controller account</div>
+							<SignerBond bond={this.controller}/>
+							<If condition={this.controller.ready()} then={<span>
+								<StakingStatusLabel id={this.controller}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{paddingBottom: '1em'}}>
+								<div style={{fontSize: 'small'}}>lock amount</div>
+								<BalanceBond bond={this.lockAmount}/>
+							</div>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<TransactButton
+								content={this.lockAmount.map(a => `LOCK ${pretty(a)}`)}
+								icon="sign in"
+								tx={{
+									sender: runtime.indices.tryIndex(this.stash),
+									call: calls.staking.bond(runtime.indices.tryIndex(this.controller), this.lockAmount, "Staked"),
+								}}
+								negative
+							/>
+						</div>
+					</Accordion.Content>
+
+					<Accordion.Title active={activeIndex === 1} onClick={()=>this.setState({activeIndex: 1})}>
+						<Icon name='dropdown' />
+						Deposit/Withdraw
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex === 1}>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>account</div>
+							<SignerBond bond={this.staking}/>
+							<If condition={this.bonding.ledger.stash.ready()} then={<span>
+								<Label>Total balance
+									<Label.Detail>
+										<Pretty value={runtime.balances.balance(this.bonding.ledger.stash)}/>
+									</Label.Detail>
+								</Label>
+								<StakingStatusLabel id={this.bonding.ledger.stash}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{paddingBottom: '1em'}}>
+								<div style={{fontSize: 'small'}}>amount</div>
+								<BalanceBond bond={this.amount}/>
+							</div>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<TransactButton
+								content="Deposit"
+								icon="sign in"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.ledger.stash),
+									call: calls.staking.bondExtra(this.amount),
+								}}
+							/>
+							<TransactButton
+								content="Withdraw"
+								icon="sign in"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.ledger.stash),
+									call: calls.staking.unbond(this.amount),
+								}}
+							/>
+							<TransactButton
+								content="Finalise"
+								icon="sign in"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.ledger.stash),
+									call: calls.staking.withdrawUnbonded(),
+								}}
+							/>
+						</div>
+					</Accordion.Content>
+
+					<Accordion.Title active={activeIndex === 2} onClick={()=>this.setState({activeIndex: 2})}>
+						<Icon name='dropdown' />
+						Validating
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex === 2}>
+					<div style={{paddingBottom: '1em'}}>
+						<div style={{fontSize: 'small'}}>account</div>
+							<SignerBond bond={this.staking}/>
+							<If condition={this.bonding.ledger.stash.ready()} then={<span>
+								<StakingStatusLabel id={this.bonding.ledger.stash}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<TransactButton
+								content="Validate"
+								icon="sign out"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.controller),
+									call: calls.staking.validate({ unstakeThreshold: 4, validatorPayment: 0 })
+								}}
+							/>
+							<TransactButton
+								content="Stop"
+								icon="stop"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.controller),
+									call: calls.staking.chill()
+								}}
+								negative
+							/>
+						</div>
+					</Accordion.Content>
+
+					<Accordion.Title active={activeIndex === 3} onClick={()=>this.setState({activeIndex: 3})}>
+						<Icon name='dropdown' />
+						Nominating
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex === 3}>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>account</div>
+							<SignerBond bond={this.staking}/>
+							<If condition={this.bonding.ledger.stash.ready()} then={<span>
+								<StakingStatusLabel id={this.bonding.ledger.stash}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>potential validators</div>
+							<AccountIdsBond accounts={runtime.staking.validators.all.mapEach(x => x.key)} bond={this.nominations}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<TransactButton
+								content="Nominate"
+								icon="hand point right"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.controller),
+									call: calls.staking.nominate(this.nominations.mapEach(x => runtime.indices.tryIndex(x)))
+								}}
+							/>
+							<TransactButton
+								content="Stop"
+								icon="stop"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.controller),
+									call: calls.staking.chill()
+								}}
+								negative
+							/>
+						</div>
+					</Accordion.Content>
+				</Accordion>
+			</div>
+		</Segment>			
+	}
+}
+
+class UpgradeSegment extends React.Component {
+	constructor () {
+		super()
+		this.conditionBond = runtime.metadata.map(m =>
+			m.modules && m.modules.some(o => o.name === 'sudo')
+			|| m.modules.some(o => o.name === 'upgrade_key')
+		)
+		this.runtime = new Bond
+	}
+	render() {
+		return <If condition={this.conditionBond} then={
 			<Segment style={{margin: '1em'}} padded>
 				<Header as='h2'>
 					<Icon name='search' />
 					<Header.Content>
-						Address Book
-						<Header.Subheader>Inspect the status of any account and name it for later use</Header.Subheader>
+						Runtime Upgrade
+						<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
 					</Header.Content>
 				</Header>
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>lookup account</div>
-					<AccountIdBond bond={this.lookup}/>
-					<If condition={this.lookup.ready()} then={<div>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.lookup)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.lookup)}/>
-							</Label.Detail>
-						</Label>
-						<StakingStatusLabel id={this.lookup}/>
-						<If condition={runtime.indices.tryIndex(this.lookup, null).map(x => x !== null)} then={
-							<Label>Short-form
-								<Label.Detail>
-									<Rspan>{runtime.indices.tryIndex(this.lookup).map(ss58Encode)}</Rspan>
-								</Label.Detail>
-							</Label>
-						}/>
-						<Label>Address
-							<Label.Detail>
-								<Pretty value={this.lookup}/>
-							</Label.Detail>
-						</Label>
-					</div>}/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>name</div>
-					<InputBond
-						bond={this.nick}
-						placeholder='A name for this address'
-						validator={n => n ? addressBook().map(ss => ss.byName[n] ? null : n) : null}
-						action={<TransformBondButton
-							content='Add'
-							transform={(name, account) => { addressBook().submit(account, name); return true }}
-							args={[this.nick, this.lookup]}
-							immediate
-						/>}
-					/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<AddressBookList/>
-				</div>
-			</Segment>
-			<Divider hidden />
-			<Segment style={{margin: '1em'}} padded>
-				<Header as='h2'>
-					<Icon name='send' />
-					<Header.Content>
-						Send Funds
-						<Header.Subheader>Send funds from your account to another</Header.Subheader>
-					</Header.Content>
-				</Header>
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>from</div>
-					<SignerBond bond={this.source}/>
-					<If condition={this.source.ready()} then={<span>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.source)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.source)}/>
-							</Label.Detail>
-						</Label>
-					</span>}/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>to</div>
-					<AccountIdBond bond={this.destination}/>
-					<If condition={this.destination.ready()} then={
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.destination)}/>
-							</Label.Detail>
-						</Label>
-					}/>
-				</div>
-				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>amount</div>
-					<BalanceBond bond={this.amount}/>
-				</div>
+				<div style={{paddingBottom: '1em'}}></div>
+				<FileUploadBond bond={this.runtime} content='Select Runtime' />
 				<TransactButton
-					content="Send"
-					icon='send'
+					content="Upgrade"
+					icon='warning'
 					tx={{
-						sender: runtime.indices.tryIndex(this.source),
-						call: calls.balances.transfer(this.destination, this.amount),
-						compact: false,
-						longevity: true
+						sender: runtime.sudo
+							? runtime.sudo.key
+							: runtime.upgrade_key.key,
+						call: calls.sudo
+							? calls.sudo.sudo(calls.consensus.setCode(this.runtime))
+							: calls.upgrade_key.upgrade(this.runtime)
 					}}
 				/>
 			</Segment>
-			<Divider hidden />
+		}/>
+	}
+}
+
+class Heading extends React.Component {
+	render () {
+		return <div>
+			<If
+				condition={nodeService().status.map(x => !!x.connected)}
+				then={<Label>Connected <Label.Detail>
+					<Pretty className="value" value={nodeService().status.sub('connected')}/>
+				</Label.Detail></Label>}
+				else={<Label>Not connected</Label>}
+			/>
+			<Label>Name <Label.Detail>
+				<Pretty className="value" value={system.name}/> v<Pretty className="value" value={system.version}/>
+			</Label.Detail></Label>
+			<Label>Chain <Label.Detail>
+				<Pretty className="value" value={system.chain}/>
+			</Label.Detail></Label>
+			<Label>Runtime <Label.Detail>
+				<Pretty className="value" value={runtime.version.specName}/> v<Pretty className="value" value={runtime.version.specVersion}/> (
+					<Pretty className="value" value={runtime.version.implName}/> v<Pretty className="value" value={runtime.version.implVersion}/>
+				)
+			</Label.Detail></Label>
+			<Label>Height <Label.Detail>
+				<Pretty className="value" value={chain.height}/> (with <Pretty className="value" value={chain.lag}/> lag)
+			</Label.Detail></Label>
+			<Label>Authorities <Label.Detail>
+				<Rspan className="value">{
+					runtime.core.authorities.mapEach(a => <Identicon key={a} account={a} size={16}/>)
+				}</Rspan>
+			</Label.Detail></Label>
+			<Label>Validators <Label.Detail>
+				<Rspan className="value">{
+					runtime.staking.exposure.map(slots => Object.keys(slots).map(k => <Identicon key={slots[k].validator} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
+				}</Rspan>
+			</Label.Detail></Label>
+			<Label>Total issuance <Label.Detail>
+				<Pretty className="value" value={runtime.balances.totalIssuance}/>
+			</Label.Detail></Label>
+		</div>
+	}
+}
+/*
+class Segment extends React.Component {
+	constructor () {
+		super()
+
+	}
+	render () {
+		return 
+	}
+}
+*/
+
+class ParachainSegment extends React.Component {
+	constructor () {
+		super()
+		this.parachainBinary = new Bond;
+		this.parachainId = new Bond;
+		this.parachainHead = new Bond;
+	}
+	render () {
+		return <If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo') && m.modules.some(o => o.name === 'parachains'))} then={
 			<Segment style={{margin: '1em'}} padded>
 				<Header as='h2'>
-					<Icon name='certificate' />
+					<Icon name='chain' />
 					<Header.Content>
-						Stake and Nominate
-						<Header.Subheader>Lock your funds and register your validator node or nominate another</Header.Subheader>
+						Parachain Registration
+						<Header.Subheader>Add a new Parachain</Header.Subheader>
 					</Header.Content>
 				</Header>
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>staking account</div>
-					<SignerBond bond={this.staker}/>
-					<If condition={this.staker.ready()} then={<span>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.staker)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.staker)}/>
-							</Label.Detail>
-						</Label>
-						<StakingStatusLabel id={this.staker}/>
-					</span>}/>
-				</div>
+				<div style={{paddingBottom: '1em'}}></div>
+				<InputBond bond={this.parachainId} placeholder='Enter a Parachain ID'/>
+				<InputBond bond={this.parachainHead} placeholder='Initial head data for the Parachain'/>
+				<FileUploadBond bond={this.parachainBinary} content='Select Parachain Binary' />
+				<TransactButton
+					content="Register"
+					icon='warning'
+					tx={{
+						sender: runtime.sudo ? runtime.sudo.key : null,
+						call: calls.sudo && calls.parachains ? calls.sudo.sudo(calls.parachains.registerParachain(this.parachainId, this.parachainBinary, this.parachainHead.map(hexToBytes))) : null
+					}}
+				/>
+			</Segment>
+		}/>
+	}
+}
 
-  				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>nominated account</div>
-					<AccountIdBond bond={this.nomination}/>
-					<If condition={this.nomination.ready()} then={<span>
-						<Label>Balance
-							<Label.Detail>
-								<Pretty value={runtime.balances.balance(this.nomination)}/>
-							</Label.Detail>
-						</Label>
-						<Label>Nonce
-							<Label.Detail>
-								<Pretty value={runtime.system.accountNonce(this.nomination)}/>
-							</Label.Detail>
-						</Label>
-						<StakingStatusLabel id={this.nomination}/>
-					</span>}/>
-				</div>
+class PokeSegment extends React.Component {
+	constructor () {
+		super()
+		this.storageKey = new Bond;
+		this.storageValue = new Bond;
+	}
+	render () {
+		return <If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='search' />
+					<Header.Content>
+						Poke
+						<Header.Subheader>Set a particular key of storage to a particular value</Header.Subheader>
+					</Header.Content>
+				</Header>
+				<div style={{paddingBottom: '1em'}}></div>
+				<InputBond bond={this.storageKey} placeholder='Storage key e.g. 0xf00baa' />
+				<InputBond bond={this.storageValue} placeholder='Storage value e.g. 0xf00baa' />
+				<TransactButton
+					content="Poke"
+					icon='warning'
+					tx={{
+						sender: runtime.sudo ? runtime.sudo.key : null,
+						call: calls.sudo ? calls.sudo.sudo(calls.consensus.setStorage([[this.storageKey.map(hexToBytes), this.storageValue.map(hexToBytes)]])) : null
+					}}
+				/>
+			</Segment>
+		}/>		
+	}
+}
 
-				<div style={{paddingBottom: '1em'}}>
-					<TransactButton
-						content="Stake"
-						icon="sign in"
-						tx={{
-							sender: runtime.indices.tryIndex(this.staker),
-							call: calls.staking.stake()
-						}}
-						positive
-						enabled={runtime.staking.intentionIndexOf(this.staker).map(i => i === -1).default(false)}
-					/>
-					<TransactButton
-						content="Unstake"
-						icon="sign out"
-						tx={{
-							sender: runtime.indices.tryIndex(this.staker),
-							call: calls.staking.unstake(runtime.staking.intentionIndexOf(this.staker))
-						}}
-						negative
-						enabled={runtime.staking.intentionIndexOf(this.staker).map(i => i !== -1).default(false)}
-					/>
-					<TransactButton
-						content="Nominate"
-						icon="hand point right"
-						tx={{
-							sender: runtime.indices.tryIndex(this.staker),
-							call: calls.staking.nominate(runtime.indices.tryIndex(this.nomination))
-						}}
-						positive
-						enabled={runtime.staking.nominationIndex(this.nomination, this.staker).map(i => i === -1).default(false)}
-					/>
-					<TransactButton
-						content="Unnominate"
-						icon="thumbs down"
-						tx={{
-							sender: runtime.indices.tryIndex(this.staker),
-							call: calls.staking.unnominate(runtime.staking.nominationIndex(this.staker))
-						}}
-						negative
-						enabled={runtime.staking.nominationIndex(this.staker).map(i => i !== -1).default(false)}
-					/>
-				</div>
-			</Segment>			
-			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo') || m.modules.some(o => o.name === 'upgrade_key'))} then={
-				<Segment style={{margin: '1em'}} padded>
-					<Header as='h2'>
-						<Icon name='search' />
-						<Header.Content>
-							Runtime Upgrade
-							<Header.Subheader>Upgrade the runtime using the UpgradeKey module</Header.Subheader>
-						</Header.Content>
-					</Header>
-					<div style={{paddingBottom: '1em'}}></div>
-					<FileUploadBond bond={this.runtime} content='Select Runtime' />
-					<TransactButton
-						content="Upgrade"
-						icon='warning'
-						tx={{
-							sender: runtime.sudo ? runtime.sudo.key : runtime.upgrade_key.key,
-							call: calls.sudo ? calls.sudo.sudo(calls.consensus.setCode(this.runtime)) : calls.upgrade_key.upgrade(this.runtime)
-						}}
-					/>
-				</Segment>
-			}/>
-			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
-				<Segment style={{margin: '1em'}} padded>
-					<Header as='h2'>
-						<Icon name='search' />
-						<Header.Content>
-							Poke
-							<Header.Subheader>Set a particular key of storage to a particular value</Header.Subheader>
-						</Header.Content>
-					</Header>
-					<div style={{paddingBottom: '1em'}}></div>
-					<InputBond bond={this.storageKey} placeholder='Storage key e.g. 0xf00baa' />
-					<InputBond bond={this.storageValue} placeholder='Storage value e.g. 0xf00baa' />
-					<TransactButton
-						content="Poke"
-						icon='warning'
-						tx={{
-							sender: runtime.sudo ? runtime.sudo.key : null,
-							call: calls.sudo ? calls.sudo.sudo(calls.consensus.setStorage([[this.storageKey.map(hexToBytes), this.storageValue.map(hexToBytes)]])) : null
-						}}
-					/>
-				</Segment>
-			}/>
-			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo') && m.modules.some(o => o.name === 'parachains'))} then={
-				<Segment style={{margin: '1em'}} padded>
-					<Header as='h2'>
-						<Icon name='chain' />
-						<Header.Content>
-							Parachain Registration
-							<Header.Subheader>Add a new Parachain</Header.Subheader>
-						</Header.Content>
-					</Header>
-					<div style={{paddingBottom: '1em'}}></div>
-					<InputBond bond={this.parachainId} placeholder='Enter a Parachain ID'/>
-					<InputBond bond={this.parachainHead} placeholder='Initial head data for the Parachain'/>
-					<FileUploadBond bond={this.parachainBinary} content='Select Parachain Binary' />
-					<TransactButton
-						content="Register"
-						icon='warning'
-						tx={{
-							sender: runtime.sudo ? runtime.sudo.key : null,
-							call: calls.sudo && calls.parachains ? calls.sudo.sudo(calls.parachains.registerParachain(this.parachainId, this.parachainBinary, this.parachainHead.map(hexToBytes))) : null
-						}}
-					/>
-				</Segment>
-			}/>
-			<Divider hidden />
-			<If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
-				<Segment style={{margin: '1em'}} padded>
-					<Header as='h2'>
-						<Icon name='chain' />
-						<Header.Content>
-							Validator Group
-							<Header.Subheader>Manipulate the validator group</Header.Subheader>
-						</Header.Content>
-					</Header>
-					<div style={{paddingBottom: '1em'}}></div>
-					<InputBond bond={this.validatorCount} placeholder='Enter a new number of validators'/>
-					<TransactButton
-						content="Set"
-						icon='warning'
-						tx={{
-							sender: runtime.sudo ? runtime.sudo.key : null,
-							call: calls.sudo ? calls.sudo.sudo(calls.staking.setValidatorCount(this.validatorCount)) : null
-						}}
-					/>
-				</Segment>
-			}/>
-		</div>);
+class FundingSegment extends React.Component {
+	constructor () {
+		super()
+
+		this.source = new Bond;
+		this.amount = new Bond;
+		this.destination = new Bond;
+	}
+	render () {
+		return <Segment style={{margin: '1em'}} padded>
+			<Header as='h2'>
+				<Icon name='send' />
+				<Header.Content>
+					Send Funds
+					<Header.Subheader>Send funds from your account to another</Header.Subheader>
+				</Header.Content>
+			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>from</div>
+				<SignerBond bond={this.source}/>
+				<If condition={this.source.ready()} then={<span>
+					<Label>Balance
+						<Label.Detail>
+							<Pretty value={runtime.balances.balance(this.source)}/>
+						</Label.Detail>
+					</Label>
+					<Label>Nonce
+						<Label.Detail>
+							<Pretty value={runtime.system.accountNonce(this.source)}/>
+						</Label.Detail>
+					</Label>
+				</span>}/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>to</div>
+				<AccountIdBond bond={this.destination}/>
+				<If condition={this.destination.ready()} then={
+					<Label>Balance
+						<Label.Detail>
+							<Pretty value={runtime.balances.balance(this.destination)}/>
+						</Label.Detail>
+					</Label>
+				}/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>amount</div>
+				<BalanceBond bond={this.amount}/>
+			</div>
+			<TransactButton
+				content="Send"
+				icon='send'
+				tx={{
+					sender: runtime.indices.tryIndex(this.source),
+					call: calls.balances.transfer(this.destination, this.amount),
+					compact: false,
+					longevity: true
+				}}
+			/>
+		</Segment>
+	}
+}
+
+class AddressBookSegment extends React.Component {
+	constructor () {
+		super()
+		this.nick = new Bond
+		this.lookup = new Bond
+	}
+	render () {
+		return <Segment style={{margin: '1em'}} padded>
+			<Header as='h2'>
+				<Icon name='search' />
+				<Header.Content>
+					Address Book
+					<Header.Subheader>Inspect the status of any account and name it for later use</Header.Subheader>
+				</Header.Content>
+			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>lookup account</div>
+				<AccountIdBond bond={this.lookup}/>
+				<If condition={this.lookup.ready()} then={<div>
+					<Label>Balance
+						<Label.Detail>
+							<Pretty value={runtime.balances.balance(this.lookup)}/>
+						</Label.Detail>
+					</Label>
+					<Label>Nonce
+						<Label.Detail>
+							<Pretty value={runtime.system.accountNonce(this.lookup)}/>
+						</Label.Detail>
+					</Label>
+					<StakingStatusLabel id={this.lookup}/>
+					<If condition={runtime.indices.tryIndex(this.lookup, null).map(x => x !== null)} then={
+						<Label>Short-form
+							<Label.Detail>
+								<Rspan>{runtime.indices.tryIndex(this.lookup).map(ss58Encode)}</Rspan>
+							</Label.Detail>
+						</Label>
+					}/>
+					<Label>Address
+						<Label.Detail>
+							<Pretty value={this.lookup}/>
+						</Label.Detail>
+					</Label>
+				</div>}/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>name</div>
+				<InputBond
+					bond={this.nick}
+					placeholder='A name for this address'
+					validator={n => n ? addressBook().map(ss => ss.byName[n] ? null : n) : null}
+					action={<TransformBondButton
+						content='Add'
+						transform={(name, account) => { addressBook().submit(account, name); return true }}
+						args={[this.nick, this.lookup]}
+						immediate
+					/>}
+				/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<AddressBookList/>
+			</div>
+		</Segment>
+	}
+}
+
+class WalletSegment extends React.Component {
+	constructor () {
+		super()
+		this.seed = new Bond;
+		this.seedAccount = this.seed.map(s => s ? secretStore().accountFromPhrase(s) : undefined)
+		this.seedAccount.use()
+		this.name = new Bond;
+	}
+	render () {
+		return <Segment style={{margin: '1em'}}>
+			<Header as='h2'>
+				<Icon name='key' />
+				<Header.Content>
+					Wallet
+					<Header.Subheader>Manage your secret keys</Header.Subheader>
+				</Header.Content>
+			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>seed</div>
+				<InputBond
+					bond={this.seed}
+					reversible
+					placeholder='Some seed for this key'
+					validator={n => n || null}
+					action={<Button content="Another" onClick={() => this.seed.trigger(secretStore().generateMnemonic())} />}
+					iconPosition='left'
+					icon={<i style={{opacity: 1}} className='icon'><Identicon account={this.seedAccount} size={28} style={{marginTop: '5px'}}/></i>}
+				/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{fontSize: 'small'}}>name</div>
+				<InputBond
+					bond={this.name}
+					placeholder='A name for this key'
+					validator={n => n ? secretStore().map(ss => ss.byName[n] ? null : n) : null}
+					action={<TransformBondButton
+						content='Create'
+						transform={(name, seed) => secretStore().submit(seed, name)}
+						args={[this.name, this.seed]}
+						immediate
+					/>}
+				/>
+			</div>
+			<div style={{paddingBottom: '1em'}}>
+				<WalletList/>
+			</div>
+		</Segment>
+	}
+}
+
+class ValidationSegment extends React.Component {
+	constructor () {
+		super()
+		this.validatorCount = new Bond
+		this.condition = runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))
+	}
+	render () {
+		return <If condition={this.condition} then={
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='chain' />
+					<Header.Content>
+						Validator Group
+						<Header.Subheader>Manipulate the validator group</Header.Subheader>
+					</Header.Content>
+				</Header>
+				<div style={{paddingBottom: '1em'}}></div>
+				<InputBond bond={this.validatorCount} placeholder='Enter a new number of validators'/>
+				<TransactButton
+					content="Set"
+					icon='warning'
+					tx={{
+						sender: runtime.sudo ? runtime.sudo.key : null,
+						call: calls.sudo ? calls.sudo.sudo(calls.staking.setValidatorCount(this.validatorCount)) : null
+					}}
+				/>
+			</Segment>
+		}/>
 	}
 }

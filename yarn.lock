@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@polkadot/wasm-crypto@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@polkadot/wasm-crypto/-/wasm-crypto-0.3.1.tgz#d605d18557076f01b00610844ba41bf12298e502"
+  integrity sha512-G1QEKC8o6SkKc65xjgMzujoA9rEQpMp/RZCVqrrmevgBhxTSohVsbXsBO3ooNtQLdq0DfFqUH13FatV0RxVdHQ==
+
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.11.tgz#b988582cafbb2b095e8b556526f30c90d057cace"
@@ -3990,10 +3995,10 @@ oo7-substrate@^0.3.20:
     tweetnacl "^1.0.0"
     xxhashjs "^0.2.2"
 
-oo7-substrate@^0.4.13:
-  version "0.4.13"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.4.13.tgz#e56e473b7b184f916fbc43dec4f13ec56c390d5f"
-  integrity sha512-Fyh7fX8MohsfLsLVJCzZU0kTTmHaWoMPrddYDGwsUfUSz8PJpNPYv9JeGKglRBbzSvQAyBejyeMD7SKvSDhpGg==
+oo7-substrate@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.5.0.tgz#fafc43bc94d3a015019dd90a114885214f0ce95a"
+  integrity sha512-h/a1KWXJKwkmu0HM0HgXdrwqZCBpiizmXQ7U3duOlBP37/aehpPORS0aErn9euBSWpcg6tkjwBK6w+yQ7Cayfg==
   dependencies:
     base-x "^3.0.4"
     bip39 "^2.5.0"
@@ -4002,7 +4007,7 @@ oo7-substrate@^0.4.13:
     change-case "^3.0.2"
     isomorphic-fetch "^2.2.1"
     isomorphic-ws "^4.0.1"
-    oo7 "^0.7.9"
+    oo7 "^0.7.10"
     ss58 "^1.0.2"
     text-encoding "^0.7.0"
     text-encoding-polyfill "^0.6.7"
@@ -4010,15 +4015,15 @@ oo7-substrate@^0.4.13:
     ws "^6.1.2"
     xxhashjs "^0.2.2"
 
+oo7@^0.7.10:
+  version "0.7.10"
+  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.10.tgz#5ecc2b76f04f585679ffe13f1e3ab527389b700c"
+  integrity sha512-jUCFP0gxyjDyjuxd6/CfuY7tQ63dKJNWdO/V8hjyAAXUHPGNL2CmMJOa/2TysR+E/L7Ha8UXZ6xUiOunbrejSw==
+
 oo7@^0.7.3, oo7@^0.7.7:
   version "0.7.7"
   resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.7.tgz#c569178b616dc700ab3cb8d685251ed063617126"
   integrity sha512-+sNGi5sIFHpBOhQHpWQB3iwpzFQ9M9bGJtUk2aCeVJVYM0hpez3uklySbOQpJ+kv4PwZ+4eapkq8Vs2lReq5jg==
-
-oo7@^0.7.9:
-  version "0.7.9"
-  resolved "https://registry.yarnpkg.com/oo7/-/oo7-0.7.9.tgz#ea9c14121fd3a24934b12d58b5f2a185a9609059"
-  integrity sha512-QcK4x8xY+rZeBBqS1HDe+kyf0g1XEdiqXcEIJl7dBxau+ICU8bGdcJ+d+POMj8/fRH6o9oyaIe2QujytxzERLg==
 
 os-browserify@^0.3.0:
   version "0.3.0"
@@ -4246,7 +4251,7 @@ path-type@^3.0.0:
   dependencies:
     pify "^3.0.0"
 
-pbkdf2@^3.0.3, pbkdf2@^3.0.9:
+pbkdf2@^3.0.17, pbkdf2@^3.0.3, pbkdf2@^3.0.9:
   version "3.0.17"
   resolved "https://registry.yarnpkg.com/pbkdf2/-/pbkdf2-3.0.17.tgz#976c206530617b14ebb32114239f7b09336e93a6"
   integrity sha512-U/il5MsrZp7mGg3mSQfn742na2T+1/vHDCG5/iTI3X9MKUuYUZVLQhyRsg06mCgDBTd57TxzgZt7P+fYfjRLtA==
