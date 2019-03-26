@@ -17,39 +17,23 @@ export class SecretItem extends ReactiveComponent {
 		let that = this
 		let toggle = () => {
 			let display = that.state.display
-			switch (display) {
-				case null:
-					display = 'seed'
-					break
-				case 'seed':
-					if (Math.random() < 0.1) {
-						display = 'phrase'
-						break
-					}
-				default:
-					display = null
+			if (display === null) {
+				display = 'uri'
+				window.setTimeout(() => that.setState({ display: null }), 5000)
+				that.setState({ display })
 			}
-			that.setState({ display })
 		}
-		return this.state.display === 'phrase'
+		return this.state.display === 'uri'
 			? <Label
 				basic
 				icon='privacy'
 				onClick={toggle}
-				content='Seed phrase'
-				detail={this.props.phrase}
-			/>
-			: this.state.display === 'seed'
-			? <Label
-				basic
-				icon='key'
-				onClick={toggle}
-				content='Validator seed'
-				detail={'0x' + bytesToHex(this.props.seed)}
+				content='URI '
+				detail={this.props.uri}
 			/>
 			: <Popup trigger={<Icon
 				circular
-				name='eye slash'
+				className='eye slash'
 				onClick={toggle}
 			/>} content='Click to uncover seed/secret' />
 	}
@@ -72,8 +56,14 @@ export class WalletList extends ReactiveComponent {
 			this.state.secretStore.keys.map(key =>
 				<List.Item key={key.name}>
 					<List.Content floated='right'>
-						<SecretItem phrase={key.phrase} seed={key.seed}/>
+						<SecretItem uri={key.uri}/>
 						<Button size='small' onClick={() => secretStore().forget(key)}>Delete</Button>
+					</List.Content>
+					<List.Content floated='right'>
+						<List.Header>Crypto</List.Header>
+						<List.Description style={{width: '4em'}}>
+							{key.type == 'ed25519' ? 'Ed25519' : key.type == 'sr25519' ? 'Sr25519' : '???'}
+						</List.Description>
 					</List.Content>
 					<span className='ui avatar image' style={{minWidth: '36px'}}>
 						<Identicon account={key.account} />

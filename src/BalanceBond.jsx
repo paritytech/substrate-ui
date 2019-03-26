@@ -1,6 +1,7 @@
 const React = require('react')
 const {Dropdown} = require('semantic-ui-react')
 const {InputBond} = require('./InputBond')
+const {Balance} = require('oo7-substrate')
 const {denominations, denominationInfo} = require('oo7-substrate').denominationInfo
 
 function formatValueNoDenom(n) {
@@ -114,7 +115,7 @@ BalanceBond.defaultProps = {
 			internal: q,
 			display: d,
 			corrected: formatValueNoDenom(q),
-			external: combineValue(q),
+			external: new Balance(combineValue(q)),
 			ok: true
 		} : null
 	}

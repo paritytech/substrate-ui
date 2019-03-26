@@ -3,31 +3,56 @@ const { Icon, Label } = require('semantic-ui-react');
 
 import { ReactiveComponent } from 'oo7-react';
 import { runtime } from 'oo7-substrate';
+import { Pretty } from './Pretty';
 
 export class StakingStatusLabel extends ReactiveComponent {
 	constructor () {
 		super (['id'], {
-			intentionIndex: ({id}) => runtime.staking.intentionIndexOf(id),
-			validatorIndex: ({id}) => runtime.session.validatorIndexOf(id),
-			bondage: ({id}) => runtime.staking.bondageOf(id),
-			nominating: ({id}) => runtime.staking.nominating(id)
+			info: ({id}) => runtime.staking.info(id).map(info => info && Object.assign({exposure: runtime.staking.exposureOf(info.ledger.stash)}, info))
 		})
 	}
 	render () {
-		let staked = this.state.intentionIndex !== -1
-		let validating = this.state.validatorIndex !== -1
-		let bondage = this.state.bondage
-		let nominating = this.state.nominating && this.state.nominating.length === 32
-		return staked && validating
-			? <Label><Icon name='certificate'/>Staked<Label.Detail>Validating</Label.Detail></Label>
-			: nominating
-			? <Label><Icon name='hand point right'/>Staked<Label.Detail>Nominating</Label.Detail></Label>
-			: staked
-			? <Label><Icon name='pause'/>Staked<Label.Detail>Idle</Label.Detail></Label>
-			: !staked && validating
-			? <Label><Icon name='sign out'/>Staked<Label.Detail>Retiring</Label.Detail></Label>
-			: !staked && bondage !== null
-			? <Label><Icon name='clock outline'/>Unstaking<Label.Detail>{bondage} blocks to go</Label.Detail></Label>
-			: <Label><Icon name='times'/>Not staked</Label>
+		if (!this.state.info) {
+			return <Label><Icon name='times'/>Not staked</Label>
+		}
+		let info = this.state.info
+
+		let intends = info.role.validator
+			? 'validate'
+			: info.role.nominator
+			? 'nominate'
+			: 'stop'
+			
+		let detail = (<Label.Detail>
+			{<span><Pretty value={info.ledger.total}/> bonded</span>}
+			{info.ledger.unlocking.length > 0
+				? <span style={{marginLeft: '1em'}}> of which <Pretty value={info.ledger.unlocking.map(n => n.value).reduce((p, n) => p.add(n))}/> unbonding</span>
+				: ''
+			}
+		</Label.Detail>)
+
+
+		if (info.exposure.validating) {
+			return <Label>
+				<Icon name='certificate'/>
+				Validating
+				{intends != 'validate' ? <span>; intends to {intends}</span> : ''}
+				{detail}
+			</Label>
+		}
+		if (info.exposure.nominating) {
+			return <Label>
+				<Icon name='play'/>
+				Nominating
+				{intends != 'nominate' ? <span>; intends to {intends}</span> : ''}
+				{detail}
+			</Label>
+		}
+		return <Label>
+			<Icon name='pause'/>
+			Idle
+			{intends != 'stop' ? <span>; intends to {intends}</span> : ''}
+			{detail}
+		</Label>
 	}
 }
