@@ -140,6 +140,7 @@ class StakingSegment extends React.Component {
 		this.stash = new Bond
 		this.controller = new Bond
 		this.nominations = new Bond
+		this.sessionKey = new Bond
 
 		window.stakingSegment = this
 	}
@@ -322,6 +323,35 @@ class StakingSegment extends React.Component {
 							/>
 						</div>
 					</Accordion.Content>
+
+					<Accordion.Title active={activeIndex == 4} onClick={()=>this.setState({activeIndex: 4})}>
+						<Icon name='dropdown' />
+						Sessions
+					</Accordion.Title>
+					<Accordion.Content active={activeIndex == 4}>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>account</div>
+							<SignerBond bond={this.staking}/>
+							<If condition={this.bonding.ledger.stash.ready()} then={<span>
+								<StakingStatusLabel id={this.bonding.ledger.stash}/>
+							</span>}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<div style={{fontSize: 'small'}}>session key</div>
+							<SignerBond bond={this.sessionKey}/>
+						</div>
+						<div style={{paddingBottom: '1em'}}>
+							<TransactButton
+								content="Set Key"
+								icon="sign in"
+								tx={{
+									sender: runtime.indices.tryIndex(this.bonding.controller),
+									call: calls.session.setKey(this.sessionKey),
+								}}
+								negative
+							/>
+						</div>
+					</Accordion.Content>
 				</Accordion>
 			</div>
 		</Segment>			
@@ -392,12 +422,12 @@ class Heading extends React.Component {
 			</Label.Detail></Label>
 			<Label>Authorities <Label.Detail>
 				<Rspan className="value">{
-					runtime.core.authorities.mapEach(a => <Identicon key={a} account={a} size={16}/>)
+					runtime.core.authorities.mapEach(a => <Identicon key={bytesToHex(a)} account={a} size={16}/>)
 				}</Rspan>
 			</Label.Detail></Label>
 			<Label>Validators <Label.Detail>
 				<Rspan className="value">{
-					runtime.staking.exposure.map(slots => Object.keys(slots).map(k => <Identicon key={slots[k].validator} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
+					runtime.staking.exposure.map(slots => Object.keys(slots).map(k => <Identicon key={bytesToHex(slots[k].validator)} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
 				}</Rspan>
 			</Label.Detail></Label>
 			<Label>Total issuance <Label.Detail>
@@ -537,7 +567,7 @@ class FundingSegment extends React.Component {
 				icon='send'
 				tx={{
 					sender: runtime.indices.tryIndex(this.source),
-					call: calls.balances.transfer(this.destination, this.amount),
+					call: calls.balances.transfer(runtime.indices.tryIndex(this.destination), this.amount),
 					compact: false,
 					longevity: true
 				}}
