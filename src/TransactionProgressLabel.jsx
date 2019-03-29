@@ -8,7 +8,7 @@ function styleStatus (value) {
 		value.signing ? { text: 'signing', icon: 'key', color: 'grey' } :
 		value.sending ? { text: 'sending', icon: 'wifi', color: 'grey' } :
 		(value.broadcast || value === 'ready') ? { text: 'finalising', icon: 'cog', color: 'grey', loading: true } :
-		value.finalised ? { text: 'finalised', icon: 'check', color: 'green' } :
+		value.finalized ? { text: 'finalized', icon: 'check', color: 'green' } :
 		value.failed ? { text: 'failed', icon: 'exclamation', color: 'red' } :
 		{ text: value.toString(), icon: 'question', color: 'blue' }
 	);

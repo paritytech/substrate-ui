@@ -422,12 +422,12 @@ class Heading extends React.Component {
 			</Label.Detail></Label>
 			<Label>Authorities <Label.Detail>
 				<Rspan className="value">{
-					runtime.core.authorities.mapEach(a => <Identicon key={bytesToHex(a)} account={a} size={16}/>)
+					runtime.core.authorities.mapEach((a, i) => <Identicon key={bytesToHex(a) + i} account={a} size={16}/>)
 				}</Rspan>
 			</Label.Detail></Label>
 			<Label>Validators <Label.Detail>
 				<Rspan className="value">{
-					runtime.staking.exposure.map(slots => Object.keys(slots).map(k => <Identicon key={bytesToHex(slots[k].validator)} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
+					runtime.staking.exposure.map(slots => Object.keys(slots).map((k, i) => <Identicon key={bytesToHex(slots[k].validator) + i} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
 				}</Rspan>
 			</Label.Detail></Label>
 			<Label>Total issuance <Label.Detail>
@@ -609,7 +609,7 @@ class AddressBookSegment extends React.Component {
 					<If condition={runtime.indices.tryIndex(this.lookup, null).map(x => x !== null)} then={
 						<Label>Short-form
 							<Label.Detail>
-								<Rspan>{runtime.indices.tryIndex(this.lookup).map(ss58Encode)}</Rspan>
+								<Rspan>{runtime.indices.tryIndex(this.lookup).map(i => ss58Encode(i) + ` (index ${i})`)}</Rspan>
 							</Label.Detail>
 						</Label>
 					}/>
