@@ -4080,10 +4080,36 @@ oo7-react@^0.8.13, oo7-react@^0.8.3:
     oo7 "^0.7.12"
     react "^16.5.2"
 
-oo7-substrate@^0.6.0, oo7-substrate@^0.6.2:
+oo7-substrate@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.6.2.tgz#479c7a75f21f0a9c7b3d6d868775222d8f7b9a88"
   integrity sha512-QQqRshLpp6/FzyzmThJ22CXoS6L/0FZkOPt1jTio5aTq3kiACC8VqFk/NrTj9bRikjoapaBPk/r0C899Yk6zQw==
+  dependencies:
+    "@polkadot/util" "^0.41.1"
+    "@polkadot/wasm-crypto" "^0.5.1"
+    "@polkadot/wasm-schnorrkel" "^0.3.1"
+    base-x "^3.0.4"
+    bip39 "^2.5.0"
+    blakejs "^1.1.0"
+    bs58 "^4.0.1"
+    buffer "^5.2.1"
+    change-case "^3.0.2"
+    isomorphic-fetch "^2.2.1"
+    isomorphic-ws "^4.0.1"
+    jdenticon "^2.1.1"
+    oo7 "^0.7.12"
+    pbkdf2 "^3.0.17"
+    ss58 "^1.0.2"
+    text-encoding "^0.7.0"
+    text-encoding-polyfill "^0.6.7"
+    tweetnacl "^1.0.0"
+    ws "^6.1.2"
+    xxhashjs "^0.2.2"
+
+oo7-substrate@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.7.0.tgz#bf312487653c2d8314160b0e89916caca18836d7"
+  integrity sha512-GqWPdUWAX/ZOZy0U8tZiQDPq4T0eXlqnzB3XGsiCdO6uuCyiOOT6/cWFs8QQJmgoDWOOuZhmPDjjzJ/K4msAgA==
   dependencies:
     "@polkadot/util" "^0.41.1"
     "@polkadot/wasm-crypto" "^0.5.1"

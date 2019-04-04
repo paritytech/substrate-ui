@@ -50,6 +50,8 @@ export class App extends ReactiveComponent {
 			<ParachainSegment />
 			<Divider hidden />
 			<ValidationSegment />
+			<Divider hidden />
+			<TransactionsSegment />
 		</div>);
 	}
 }
@@ -130,6 +132,51 @@ class AccountIdsBondInner extends React.Component {
 	}
 }
 
+class StakingTable extends ReactiveComponent {
+	constructor () {
+		super([], { exposure: runtime.staking.exposure })
+	}
+
+	readyRender () {
+		let exposure = Object.values(this.state.exposure)
+		exposure.sort((a, b) => b.total.sub(a.total))
+		return <table>{exposure.map(i => <tr>
+			<td><Identicon account={i.validator} className={i.invulnerable ? 'invulnerable' : ''} size={24}/></td>
+			<td>{ss58Encode(i.validator)}</td>
+			<td><Pretty value={i.total}/></td>
+			<td>= <Pretty value={i.own}/></td>
+			<td> + { i.others.length } nominators</td>
+		</tr>)}</table>
+	}
+}
+
+class TransactionsSegment extends React.Component {
+	constructor () {
+		super()
+
+		this.txhex = new Bond
+	}
+
+	render () {
+		return <Segment style={{margin: '1em'}} padded>
+			<Header as='h2'>
+				<Icon name='certificate' />
+				<Header.Content>
+					Transactions
+					<Header.Subheader>Send custom transactions</Header.Subheader>
+				</Header.Content>
+			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<div style={{paddingBottom: '1em'}}>
+					<div style={{fontSize: 'small'}}>stash (<b>lockup</b>) account</div>
+					<InputBond bond={this.txhex}/>
+				</div>
+				<TransactButton tx={this.txhex.map(hexToBytes)} content="Publish" icon="sign in" />
+			</div>
+		</Segment>
+	}
+}
+
 class StakingSegment extends React.Component {
 	constructor () {
 		super()
@@ -158,6 +205,9 @@ class StakingSegment extends React.Component {
 					<Header.Subheader>Lock and unlock your funds, register to validate or nominate others</Header.Subheader>
 				</Header.Content>
 			</Header>
+			<div style={{paddingBottom: '1em'}}>
+				<StakingTable />
+			</div>
 			<div style={{paddingBottom: '1em'}}>
 				<Accordion styled>
 					<Accordion.Title active={activeIndex == 0} onClick={()=>this.setState({activeIndex: 0})}>
@@ -715,6 +765,15 @@ class ValidationSegment extends React.Component {
 					tx={{
 						sender: runtime.sudo ? runtime.sudo.key : null,
 						call: calls.sudo ? calls.sudo.sudo(calls.staking.setValidatorCount(this.validatorCount)) : null
+					}}
+				/>
+				<div style={{paddingBottom: '1em'}}></div>
+				<TransactButton
+					content="Force New Era"
+					icon='warning'
+					tx={{
+						sender: runtime.sudo ? runtime.sudo.key : null,
+						call: calls.sudo ? calls.sudo.sudo(calls.staking.forceNewEra(true)) : null
 					}}
 				/>
 			</Segment>
