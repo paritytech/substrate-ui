@@ -81,11 +81,6 @@ class Heading extends React.Component {
 					runtime.core.authorities.mapEach((a, i) => <Identicon key={bytesToHex(a) + i} account={a} size={16} />)
 				}</Rspan>
 			</Label.Detail></Label>
-			<Label>Validators <Label.Detail>
-				<Rspan className="value">{
-					runtime.staking.exposure.map(slots => Object.keys(slots).map((k, i) => <Identicon key={bytesToHex(slots[k].validator) + i} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16} />))
-				}</Rspan>
-			</Label.Detail></Label>
 			<Label>Total issuance <Label.Detail>
 				<Pretty className="value" value={runtime.balances.totalIssuance} />
 			</Label.Detail></Label>
@@ -172,7 +167,6 @@ class AddressBookSegment extends React.Component {
 							<Pretty value={runtime.system.accountNonce(this.lookup)} />
 						</Label.Detail>
 					</Label>
-					<StakingStatusLabel id={this.lookup} />
 					<If condition={runtime.indices.tryIndex(this.lookup, null).map(x => x !== null)} then={
 						<Label>Short-form
 							<Label.Detail>
@@ -358,7 +352,7 @@ class TransactionsSegment extends React.Component {
 			</Header>
 			<div style={{paddingBottom: '1em'}}>
 				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>stash (<b>lockup</b>) account</div>
+					<div style={{fontSize: 'small'}}>Custom Transaction Data</div>
 					<InputBond bond={this.txhex}/>
 				</div>
 				<TransactButton tx={this.txhex.map(hexToBytes)} content="Publish" icon="sign in" />
