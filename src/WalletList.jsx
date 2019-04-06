@@ -60,10 +60,10 @@ export class WalletList extends ReactiveComponent {
 						<Button size='small' onClick={() => secretStore().forget(key)}>Delete</Button>
 					</List.Content>
 					<List.Content floated='right'>
-						<List.Header>Crypto</List.Header>
-						<List.Description style={{width: '4em'}}>
+						<div>Crypto</div>
+						<div style={{fontWeight: 'bold', width: '4em', color: key.type == 'sr25519' ? '#050' : '#daa'}}>
 							{key.type == 'ed25519' ? 'Ed25519' : key.type == 'sr25519' ? 'Sr25519' : '???'}
-						</List.Description>
+						</div>
 					</List.Content>
 					<span className='ui avatar image' style={{minWidth: '36px'}}>
 						<Identicon account={key.account} />
