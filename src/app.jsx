@@ -168,7 +168,7 @@ class TransactionsSegment extends React.Component {
 			</Header>
 			<div style={{paddingBottom: '1em'}}>
 				<div style={{paddingBottom: '1em'}}>
-					<div style={{fontSize: 'small'}}>stash (<b>lockup</b>) account</div>
+					<div style={{fontSize: 'small'}}>Custom Transaction Data</div>
 					<InputBond bond={this.txhex}/>
 				</div>
 				<TransactButton tx={this.txhex.map(hexToBytes)} content="Publish" icon="sign in" />
@@ -486,17 +486,6 @@ class Heading extends React.Component {
 		</div>
 	}
 }
-/*
-class Segment extends React.Component {
-	constructor () {
-		super()
-
-	}
-	render () {
-		return 
-	}
-}
-*/
 
 class ParachainSegment extends React.Component {
 	constructor () {
