@@ -45,6 +45,8 @@ export class App extends ReactiveComponent {
 			<Divider hidden />
 			<UpgradeSegment />
 			<Divider hidden />
+			<PokeSegment />
+			<Divider hidden />
 			<TransactionsSegment />
 		</div>);
 	}
@@ -303,6 +305,38 @@ class UpgradeSegment extends React.Component {
 				/>
 			</Segment>
 		} />
+	}
+}
+
+class PokeSegment extends React.Component {
+	constructor () {
+		super()
+		this.storageKey = new Bond;
+		this.storageValue = new Bond;
+	}
+	render () {
+		return <If condition={runtime.metadata.map(m => m.modules && m.modules.some(o => o.name === 'sudo'))} then={
+			<Segment style={{margin: '1em'}} padded>
+				<Header as='h2'>
+					<Icon name='search' />
+					<Header.Content>
+						Poke
+						<Header.Subheader>Set a particular key of storage to a particular value</Header.Subheader>
+					</Header.Content>
+				</Header>
+				<div style={{paddingBottom: '1em'}}></div>
+				<InputBond bond={this.storageKey} placeholder='Storage key e.g. 0xf00baa' />
+				<InputBond bond={this.storageValue} placeholder='Storage value e.g. 0xf00baa' />
+				<TransactButton
+					content="Poke"
+					icon='warning'
+					tx={{
+						sender: runtime.sudo ? runtime.sudo.key : null,
+						call: calls.sudo ? calls.sudo.sudo(calls.consensus.setStorage([[this.storageKey.map(hexToBytes), this.storageValue.map(hexToBytes)]])) : null
+					}}
+				/>
+			</Segment>
+		}/>		
 	}
 }
 
