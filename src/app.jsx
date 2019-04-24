@@ -140,13 +140,13 @@ class StakingTable extends ReactiveComponent {
 	readyRender () {
 		let exposure = Object.values(this.state.exposure)
 		exposure.sort((a, b) => b.total.sub(a.total))
-		return <table>{exposure.map(i => <tr>
+		return <table><tbody>{exposure.map(i => <tr key={bytesToHex(i.validator)}>
 			<td><Identicon account={i.validator} className={i.invulnerable ? 'invulnerable' : ''} size={24}/></td>
 			<td>{ss58Encode(i.validator)}</td>
 			<td><Pretty value={i.total}/></td>
 			<td>= <Pretty value={i.own}/></td>
 			<td> + { i.others.length } nominators</td>
-		</tr>)}</table>
+		</tr>)}</tbody></table>
 	}
 }
 
