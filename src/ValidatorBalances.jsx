@@ -1,6 +1,6 @@
 import { ReactiveComponent } from 'oo7-react';
 import { pretty } from 'oo7-substrate';
-import Identicon from 'polkadot-identicon';
+import { Identicon } from './Identicon';
 
 export class ValidatorBalances extends ReactiveComponent {
 	constructor () {

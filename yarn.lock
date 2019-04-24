@@ -4056,10 +4056,10 @@ oo7-react@^0.8.13, oo7-react@^0.8.3:
     oo7 "^0.7.12"
     react "^16.5.2"
 
-oo7-substrate@^0.7.0, oo7-substrate@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.7.1.tgz#047398e3a8e26a0408e8b07a3c82cbdc40b41749"
-  integrity sha512-R/mAq6xEg0WEcZpSC6XhntRjYgi53bvbn+EBQ2d1/FomCzy19CaKY12muX5Zx9UON7v3fG0mi7HFm9jd4Uu1zQ==
+oo7-substrate@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/oo7-substrate/-/oo7-substrate-0.8.0.tgz#690a6ec145287ae0cbb5647146f3ce76a8a28ff3"
+  integrity sha512-ltglsNXZNmiDsJ5q4LYx0tf0SN0CVjW5fSifwrBRe/objxG2fYXogZ4eiNdsLJrTddvskv+3o5JpvFw/D3PCUA==
   dependencies:
     "@polkadot/util" "^0.41.1"
     "@polkadot/wasm-crypto" "^0.5.1"
@@ -4359,15 +4359,15 @@ pkg-dir@^3.0.0:
   dependencies:
     find-up "^3.0.0"
 
-polkadot-identicon@^1.1.15:
-  version "1.1.43"
-  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.43.tgz#7b73440df7653c1c625432ee2184253c0f93b1b4"
-  integrity sha512-MaA9R13SaO65azbFAoak1PLW+zad2cv2Hg0YgLu206FBjX/QttIEIYRtKUIevoKpSjfaB240wJNtNTHcXb6kfQ==
+polkadot-identicon@^1.1.45:
+  version "1.1.45"
+  resolved "https://registry.yarnpkg.com/polkadot-identicon/-/polkadot-identicon-1.1.45.tgz#9c8f5644be15f33e47200120e81cca068e4d26ed"
+  integrity sha512-UFdxnfvQPHnbKadKibbCGsFrO6XfOy+OeVf+yAyp24CAnSwVujl7OiIdBxnV1V5BVSU61Cfan96grj8VznZk/w==
   dependencies:
     blake2js "^1.0.0"
     oo7 "^0.7.12"
     oo7-react "^0.8.13"
-    oo7-substrate "^0.7.1"
+    oo7-substrate "^0.8.0"
     react "^16.4.2"
     ss58 "^1.0.0"
 

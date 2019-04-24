@@ -22,12 +22,22 @@ const denominationInfoCHR = {
 	ticker: 'CHR'
 }
 
+const denominationInfoELM = {
+	denominations: {
+		chr: 15,
+	},
+	primary: 'elm',
+	unit: 'ember',
+	ticker: 'ELM'
+}
+
 setTimeout(() => {
 	const { system } = require('oo7-substrate')
 	system.chain.tie(name => {
 		switch (name) {
 			case 'Alexander': { init(denominationInfoDOT); break; }
 			case 'Charred Cherry': { init(denominationInfoCHR); break; }
+			case 'Emberic Elm': { init(denominationInfoELM); break; }
 		}
 	}),
 	0

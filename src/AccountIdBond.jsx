@@ -1,7 +1,7 @@
 const React = require('react');
 const {Bond} = require('oo7');
 const {ReactiveComponent, Rimg} = require('oo7-react');
-const Identicon = require('polkadot-identicon').default;
+const {Identicon} = require('./Identicon');
 const {Label, Input} = require('semantic-ui-react');
 const {InputBond} = require('./InputBond');
 const nacl = require('tweetnacl');

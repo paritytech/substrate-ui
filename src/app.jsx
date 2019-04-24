@@ -1,3 +1,4 @@
+const jdenticon = require('jdenticon');
 import React from 'react';
 require('semantic-ui-css/semantic.min.css');
 import {Icon, Accordion, List, Checkbox, Label, Header, Segment, Divider, Button} from 'semantic-ui-react';
@@ -5,7 +6,7 @@ import {Bond, TransformBond} from 'oo7';
 import {ReactiveComponent, If, Rspan} from 'oo7-react';
 import {calls, runtime, chain, system, runtimeUp, ss58Decode, ss58Encode, pretty,
 	addressBook, secretStore, metadata, nodeService, bytesToHex, hexToBytes, AccountId} from 'oo7-substrate';
-import Identicon from 'polkadot-identicon';
+import {Identicon} from './Identicon';
 import {AccountIdBond, SignerBond} from './AccountIdBond.jsx';
 import {BalanceBond} from './BalanceBond.jsx';
 import {InputBond} from './InputBond.jsx';
