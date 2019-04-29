@@ -16,34 +16,22 @@ const copyToClipboard = str => {
 class Jdenticon extends ReactiveComponent {
 	constructor () {
 		super(["account"])
-        jdenticon()
     }
     readyRender () {
-        let v
-        try {
-            v = ss58Encode(this.state.account)
-        }
-        catch (e) {
-            return <span></span>
-        }
-		return (<svg
-			id={this.props.id}
-            name={this.props.name}
-            data-jdenticon-value={bytesToHex(this.state.account)}
-			className={this.props.className}
-			style={this.props.style}
-			width={this.props.width || this.props.size}
-			height={this.props.height || this.props.size}
-			onClick={() => { copyToClipboard(ss58); this.props.onCopied && this.props.onCopied(ss58); }}
-        ></svg>)
-    }
-    componentDidMount () {
-        jdenticon()
-        jdenticon.update()
-    }
-    componentDidUpdate () {
-        jdenticon()
-        jdenticon.update()
+        return (
+            <div
+    			id={this.props.id}
+                name={this.props.name}
+                className={this.props.className}
+                style={this.props.style}
+                dangerouslySetInnerHTML={ {
+                    __html: jdenticon.toSvg(bytesToHex(this.state.account), this.props.size || this.props.width || 32)
+                } }
+                width={this.props.width || this.props.size}
+                height={this.props.height || this.props.size}
+                onClick={() => { copyToClipboard(ss58); this.props.onCopied && this.props.onCopied(ss58); }}
+            />
+        );
     }
 }
 

@@ -66,7 +66,7 @@ export class WalletList extends ReactiveComponent {
 						</div>
 					</List.Content>
 					<span className='ui avatar image' style={{minWidth: '36px'}}>
-						<Identicon account={key.account} />
+						<Identicon account={key.account} size={36}/>
 					</span>
 					<List.Content>
 						<List.Header>{key.name}</List.Header>
