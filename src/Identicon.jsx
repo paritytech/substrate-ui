@@ -29,7 +29,7 @@ class Jdenticon extends ReactiveComponent {
 		return (<svg
 			id={this.props.id}
             name={this.props.name}
-            data-jdenticon-value={bytesToHex(this.state.account).substr(2)}
+            data-jdenticon-value={bytesToHex(this.state.account)}
 			className={this.props.className}
 			style={this.props.style}
 			width={this.props.width || this.props.size}
