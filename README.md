@@ -1,5 +1,7 @@
 # Setup
 
+**Requires Node v11**
+
 * Install dependencies and run the app
 
 ```
