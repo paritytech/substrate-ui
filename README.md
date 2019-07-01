@@ -1,6 +1,6 @@
 # Setup
 
-**Requires Node v11**
+**Requires Node v11 and Python**
 
 * Install dependencies and run the app
 
