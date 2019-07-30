@@ -41,16 +41,24 @@ export class App extends ReactiveComponent {
 			<AddressBookSegment />
 			<Divider hidden />
 			<FundingSegment />
-			<Divider hidden />
-			<StakingSegment />
+			{runtime.staking != null &&
+			<div>
+			 <Divider hidden />
+			 <StakingSegment />
+			</div>
+			}
 			<Divider hidden />
 			<UpgradeSegment />
 			<Divider hidden />
 			<PokeSegment />
 			<Divider hidden />
 			<ParachainSegment />
-			<Divider hidden />
-			<ValidationSegment />
+			{runtime.staking != null &&
+			<div>
+			 <Divider hidden />
+			 <ValidationSegment />
+			</div>
+			}
 			<Divider hidden />
 			<TransactionsSegment />
 		</div>);
@@ -216,6 +224,7 @@ class StakingSegment extends React.Component {
 						Lock
 					</Accordion.Title>
 					<Accordion.Content active={activeIndex == 0}>
+						{runtime.balances != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<div style={{fontSize: 'small'}}>stash (<b>lockup</b>) account</div>
 							<SignerBond bond={this.stash}/>
@@ -228,6 +237,7 @@ class StakingSegment extends React.Component {
 								<StakingStatusLabel id={this.stash}/>
 							</span>}/>
 						</div>
+						}
 						<div style={{paddingBottom: '1em'}}>
 							<div style={{fontSize: 'small'}}>controller account</div>
 							<SignerBond bond={this.controller}/>
@@ -241,6 +251,7 @@ class StakingSegment extends React.Component {
 								<BalanceBond bond={this.lockAmount}/>
 							</div>
 						</div>
+						{runtime.indices != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<TransactButton
 								content={this.lockAmount.map(a => `LOCK ${pretty(a)}`)}
@@ -252,6 +263,7 @@ class StakingSegment extends React.Component {
 								negative
 							/>
 						</div>
+						}
 					</Accordion.Content>
 
 					<Accordion.Title active={activeIndex === 1} onClick={()=>this.setState({activeIndex: 1})}>
@@ -259,6 +271,7 @@ class StakingSegment extends React.Component {
 						Deposit/Withdraw
 					</Accordion.Title>
 					<Accordion.Content active={activeIndex === 1}>
+						{runtime.balances != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<div style={{fontSize: 'small'}}>account</div>
 							<SignerBond bond={this.staking}/>
@@ -271,12 +284,14 @@ class StakingSegment extends React.Component {
 								<StakingStatusLabel id={this.bonding.ledger.stash}/>
 							</span>}/>
 						</div>
+						}
 						<div style={{paddingBottom: '1em'}}>
 							<div style={{paddingBottom: '1em'}}>
 								<div style={{fontSize: 'small'}}>amount</div>
 								<BalanceBond bond={this.amount}/>
 							</div>
 						</div>
+						{runtime.indices != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<TransactButton
 								content="Deposit"
@@ -303,6 +318,7 @@ class StakingSegment extends React.Component {
 								}}
 							/>
 						</div>
+						}
 					</Accordion.Content>
 
 					<Accordion.Title active={activeIndex === 2} onClick={()=>this.setState({activeIndex: 2})}>
@@ -354,6 +370,7 @@ class StakingSegment extends React.Component {
 							<div style={{fontSize: 'small'}}>potential validators</div>
 							<AccountIdsBond accounts={runtime.staking.validators.all.mapEach(x => x.key)} bond={this.nominations}/>
 						</div>
+						{runtime.indices != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<TransactButton
 								content="Nominate"
@@ -373,6 +390,7 @@ class StakingSegment extends React.Component {
 								negative
 							/>
 						</div>
+						}
 					</Accordion.Content>
 
 					<Accordion.Title active={activeIndex == 4} onClick={()=>this.setState({activeIndex: 4})}>
@@ -391,6 +409,7 @@ class StakingSegment extends React.Component {
 							<div style={{fontSize: 'small'}}>session key</div>
 							<SignerBond bond={this.sessionKey}/>
 						</div>
+						{runtime.indices != null &&
 						<div style={{paddingBottom: '1em'}}>
 							<TransactButton
 								content="Set Key"
@@ -402,6 +421,7 @@ class StakingSegment extends React.Component {
 								negative
 							/>
 						</div>
+						}
 					</Accordion.Content>
 				</Accordion>
 			</div>
@@ -476,14 +496,18 @@ class Heading extends React.Component {
 					runtime.core.authorities.mapEach((a, i) => <Identicon key={bytesToHex(a) + i} account={a} size={16}/>)
 				}</Rspan>
 			</Label.Detail></Label>
+			{runtime.staking != null &&
 			<Label>Validators <Label.Detail>
 				<Rspan className="value">{
 					runtime.staking.exposure.map(slots => Object.keys(slots).map((k, i) => <Identicon key={bytesToHex(slots[k].validator) + i} account={slots[k].validator} className={slots[k].invulnerable ? 'invulnerable' : ''} size={16}/>))
 				}</Rspan>
 			</Label.Detail></Label>
+			}
+			{runtime.balances != null &&
 			<Label>Total issuance <Label.Detail>
 				<Pretty className="value" value={runtime.balances.totalIssuance}/>
 			</Label.Detail></Label>
+			}
 		</div>
 	}
 }
@@ -575,11 +599,13 @@ class FundingSegment extends React.Component {
 				<div style={{fontSize: 'small'}}>from</div>
 				<SignerBond bond={this.source}/>
 				<If condition={this.source.ready()} then={<span>
+					{runtime.balances != null &&
 					<Label>Balance
 						<Label.Detail>
 							<Pretty value={runtime.balances.balance(this.source)}/>
 						</Label.Detail>
 					</Label>
+					}
 					<Label>Nonce
 						<Label.Detail>
 							<Pretty value={runtime.system.accountNonce(this.source)}/>
@@ -587,6 +613,7 @@ class FundingSegment extends React.Component {
 					</Label>
 				</span>}/>
 			</div>
+			{runtime.balances != null &&
 			<div style={{paddingBottom: '1em'}}>
 				<div style={{fontSize: 'small'}}>to</div>
 				<AccountIdBond bond={this.destination}/>
@@ -598,10 +625,12 @@ class FundingSegment extends React.Component {
 					</Label>
 				}/>
 			</div>
+			}
 			<div style={{paddingBottom: '1em'}}>
 				<div style={{fontSize: 'small'}}>amount</div>
 				<BalanceBond bond={this.amount}/>
 			</div>
+			{(runtime.balances != null || runtime.indices != null) &&
 			<TransactButton
 				content="Send"
 				icon='send'
@@ -612,6 +641,7 @@ class FundingSegment extends React.Component {
 					longevity: true
 				}}
 			/>
+			}
 		</Segment>
 	}
 }
@@ -635,17 +665,20 @@ class AddressBookSegment extends React.Component {
 				<div style={{fontSize: 'small'}}>lookup account</div>
 				<AccountIdBond bond={this.lookup}/>
 				<If condition={this.lookup.ready()} then={<div>
+					{runtime.balances != null &&
 					<Label>Balance
 						<Label.Detail>
 							<Pretty value={runtime.balances.balance(this.lookup)}/>
 						</Label.Detail>
 					</Label>
+					}
 					<Label>Nonce
 						<Label.Detail>
 							<Pretty value={runtime.system.accountNonce(this.lookup)}/>
 						</Label.Detail>
 					</Label>
 					<StakingStatusLabel id={this.lookup}/>
+					{runtime.indices != null &&
 					<If condition={runtime.indices.tryIndex(this.lookup, null).map(x => x !== null)} then={
 						<Label>Short-form
 							<Label.Detail>
@@ -653,6 +686,7 @@ class AddressBookSegment extends React.Component {
 							</Label.Detail>
 						</Label>
 					}/>
+				    }
 					<Label>Address
 						<Label.Detail>
 							<Pretty value={this.lookup}/>
